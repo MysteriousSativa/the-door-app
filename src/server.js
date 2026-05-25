@@ -366,7 +366,9 @@ const server = http.createServer(async (req, res) => {
     if (err) { res.writeHead(404); return res.end("not found"); }
     const ext = path.extname(file);
     const types = { ".html":"text/html; charset=utf-8", ".css":"text/css", ".js":"text/javascript", ".png":"image/png" };
-    res.writeHead(200, { "Content-Type": types[ext] || "application/octet-stream" });
+    // HTML must never be cached so deploys take effect immediately
+    const cc = ext === ".html" ? "no-cache, no-store, must-revalidate" : "public, max-age=86400";
+    res.writeHead(200, { "Content-Type": types[ext] || "application/octet-stream", "Cache-Control": cc });
     res.end(data);
   });
 });
