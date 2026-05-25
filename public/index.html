@@ -569,11 +569,11 @@ function getCurrentFaceFrame() {
     if (blinkPhase === 1 || blinkPhase === 3) return 1;
     return 2;
   }
-  // blinking while awake/waking: suppress mouth-open during the blink sequence
+  // speaking: eyes always fully open, mouth open — blink is suppressed
+  if (faceReactTimer > 0 || doorSpeaking) return 3;
+  // blinking while awake/waking: eyes close, mouth never opens
   if (blinkPhase === 2) return 2;                     // fully closed
   if (blinkPhase === 1 || blinkPhase === 3) return 1; // half-close / half-open
-  // awake: mouth reacts to clicks and speech
-  if (faceReactTimer > 0 || doorSpeaking) return 3;
   return 0;                                            // idle: eyes open, mouth closed
 }
 
