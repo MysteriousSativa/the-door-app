@@ -139,6 +139,80 @@
   .inv-chip.rare{background:rgba(100,160,255,.12);border-color:rgba(100,160,255,.42);color:#7aabff;}
   .inv-chip.legendary{background:rgba(255,215,80,.12);border-color:rgba(255,215,80,.5);color:#ffd750;animation:legGlow 1.8s ease-in-out infinite;}
   @keyframes legGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,215,80,.35);}50%{box-shadow:0 0 14px 5px rgba(255,215,80,.18);}}
+
+  /* ============================================================
+     MOBILE  ≤ 768 px
+  ============================================================ */
+  @media(max-width:768px){
+    html,body{overflow:hidden;}
+    .app{height:100dvh;grid-template-rows:auto 1fr auto;overflow:hidden;}
+
+    /* Compact top bar */
+    .topbar{grid-template-columns:1fr auto;padding:8px 12px;gap:8px;}
+    .brand h1{font-size:1.1rem;letter-spacing:.1em;}
+    .brand span{display:none;}
+    .devoured{display:none;}
+    .wallet{gap:7px;}
+    .balance{font-size:.72rem;padding:6px 10px;}
+    .ghost#connect{font-size:.65rem;padding:0 10px;min-height:34px;}
+    .icon{width:34px;min-height:34px;font-size:.88rem;}
+    .stash{display:none;}
+
+    /* Stage: only the door, full width */
+    .stage{display:block;padding:8px 10px 0;min-height:0;height:100%;overflow:hidden;}
+    .rail{display:none!important;}
+    .door-wrap{display:flex;flex-direction:column;height:100%;gap:8px;}
+    .event-banner{min-height:32px;font-size:.62rem;padding:6px 10px;border-radius:8px;}
+    .canvas-shell{flex:1 1 0;border-radius:12px;min-height:0;}
+    #door{width:100%;height:100%;display:block;}
+
+    /* Feed panel — bigger tap targets */
+    .feed-panel{grid-template-columns:1fr 1.4fr 1fr;gap:6px;}
+    .feed-card{padding:8px 6px;border-radius:8px;}
+    .feed-card strong{font-size:1rem;}
+    .feed-card span{font-size:.52rem;}
+    .feed-action .primary{min-height:54px;font-size:.9rem;letter-spacing:.1em;}
+
+    /* Stats bar squished */
+    .statsbar{grid-template-columns:repeat(3,1fr);margin:0 10px 0;border-radius:10px;}
+    .stat{padding:8px 6px;}
+    .stat .label{font-size:.5rem;}
+    .stat strong{font-size:.82rem;}
+
+    /* Inventory bar — hidden on mobile (goes in Loot tab) */
+    .inventory-bar{display:none!important;}
+
+    /* Bottom drawer */
+    .m-drawer{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--panel2);border-top:1px solid var(--line2);display:flex;flex-direction:column;max-height:52vh;transition:max-height .28s cubic-bezier(.4,0,.2,1);}
+    .m-drawer.collapsed{max-height:46px;}
+    .m-tabs{display:flex;border-bottom:1px solid var(--line);}
+    .m-tab{flex:1;padding:10px 0 8px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;background:transparent;border:none;color:var(--muted);cursor:pointer;position:relative;transition:color .2s;}
+    .m-tab.active{color:var(--glow);}
+    .m-tab.active::after{content:"";position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--glow);border-radius:2px;}
+    .m-panel{display:none;flex:1;overflow-y:auto;padding:6px 8px 60px;scrollbar-width:thin;}
+    .m-panel.show{display:block;}
+    .m-loot-empty{color:var(--dim);font-size:.75rem;text-align:center;padding:20px 0;}
+    .m-inv-chip{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:6px;border:1px solid;font-size:.8rem;font-weight:700;cursor:pointer;transition:transform .1s,opacity .1s;active:scale(.97);}
+    .m-inv-chip.common{background:rgba(142,142,153,.15);border-color:rgba(142,142,153,.4);color:#9e9eab;}
+    .m-inv-chip.uncommon{background:rgba(118,247,180,.10);border-color:rgba(118,247,180,.4);color:#76f7b4;}
+    .m-inv-chip.rare{background:rgba(100,160,255,.12);border-color:rgba(100,160,255,.42);color:#7aabff;}
+    .m-inv-chip.legendary{background:rgba(255,215,80,.12);border-color:rgba(255,215,80,.5);color:#ffd750;}
+    .m-inv-chip .trade-btn{font-size:.65rem;padding:4px 10px;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+    .m-whisper{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.05);line-height:1.4;font-size:.8rem;color:#ddd5c6;}
+    .m-whisper strong{color:var(--glow);font-family:var(--ritual);font-size:.74rem;}
+    .m-whisper time{display:block;color:var(--dim);font-size:.6rem;margin-top:2px;}
+    .m-lrow{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;padding:8px 6px;border-radius:8px;font-size:.8rem;font-variant-numeric:tabular-nums;}
+    .m-lrow+.m-lrow{margin-top:2px;}
+    .m-lrow.you{background:linear-gradient(90deg,rgba(246,165,58,.18),rgba(246,165,58,.04));box-shadow:inset 0 0 0 1px rgba(246,165,58,.32);}
+    .m-lrow .pos{color:var(--dim);font-size:.72rem;text-align:right;}
+    .m-lrow strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem;font-weight:600;}
+    .m-lrow .sub{color:var(--muted);font-size:.6rem;text-transform:uppercase;}
+    .m-lrow .lscore{color:var(--glow);font-weight:800;font-size:.78rem;}
+    .toast-wrap{right:10px;bottom:56px;}
+    .toast{max-width:calc(100vw - 20px);}
+    .conn{bottom:50px;font-size:.55rem;}
+    .footer-note{display:none;}
+  }
 </style>
 <script src="https://unpkg.com/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
 </head>
@@ -197,6 +271,18 @@
     <div class="inv-chips" id="invChips"></div>
   </div>
 </main>
+
+<!-- Mobile bottom drawer (visible only on ≤768px) -->
+<div class="m-drawer collapsed" id="mDrawer">
+  <div class="m-tabs">
+    <button class="m-tab active" data-panel="mBoard">⚔ Board</button>
+    <button class="m-tab"        data-panel="mChat">💬 Chat</button>
+    <button class="m-tab"        data-panel="mLoot">🎒 Loot</button>
+  </div>
+  <div class="m-panel show" id="mBoard"></div>
+  <div class="m-panel"      id="mChat"></div>
+  <div class="m-panel"      id="mLoot"></div>
+</div>
 
 <div class="conn">server: <b id="connState">connecting…</b></div>
 <div class="gflash" id="gflash"><strong id="gtext">Blood Hour</strong></div>
@@ -398,8 +484,8 @@ function drawFaceOnDoor(dw, dh, era, frameIdx) {
   cx.save();
   const ar = img.width / img.height, br = dw / dh;
   let fw, fh, fx, fy;
-  if (ar > br) { fh=dh; fw=fh*ar; fx=-(fw-dw)/2; fy=0; }
-  else          { fw=dw; fh=fw/ar; fx=0; fy=-(fh-dh)/2; }
+  if (ar > br) { fw=dw*0.92; fh=fw/ar; fx=dw*0.04; fy=(dh-fh)*0.36; }
+  else          { fh=dh*0.88; fw=fh*ar; fx=(dw-fw)/2; fy=dh*0.05; }
   cx.drawImage(img, fx, fy, fw, fh);
   cx.restore();
 }
@@ -984,17 +1070,34 @@ function updateStash(ses){
 let localInventory=[];
 function renderInventory(){
   const bar=$("#inventoryBar"), chips=$("#invChips");
-  if(localInventory.length===0){ bar.style.display="none"; return; }
-  bar.style.display="flex";
-  chips.innerHTML="";
-  for(const item of localInventory){
-    const btn=document.createElement("button");
-    btn.className=`inv-chip ${item.rarity}`;
-    btn.title=`${item.desc}\nTrade for ${item.value} BTDOOR`;
-    btn.textContent=`${item.name} +${item.value}BT`;
-    btn.onclick=()=>tradeItem(item.iid);
-    chips.appendChild(btn);
+  if(localInventory.length===0){ bar.style.display="none"; } else {
+    bar.style.display="flex"; chips.innerHTML="";
+    for(const item of localInventory){
+      const btn=document.createElement("button");
+      btn.className=`inv-chip ${item.rarity}`;
+      btn.title=`${item.desc}\nTrade for ${item.value} BTDOOR`;
+      btn.textContent=`${item.name} +${item.value}BT`;
+      btn.onclick=()=>tradeItem(item.iid);
+      chips.appendChild(btn);
+    }
   }
+  /* ---- mobile loot panel ---- */
+  const ml=$("#mLoot");
+  if(!ml) return;
+  ml.innerHTML="";
+  if(localInventory.length===0){
+    ml.innerHTML=`<div class="m-loot-empty">No loot yet. Feed the door.</div>`;
+  } else {
+    for(const item of localInventory){
+      const row=document.createElement("div");
+      row.className=`m-inv-chip ${item.rarity}`;
+      row.innerHTML=`<span>${item.name}<br><small style="opacity:.65;font-weight:400">${item.desc}</small></span><button class="trade-btn" onclick="tradeItem('${item.iid}')">+${item.value}BT</button>`;
+      ml.appendChild(row);
+    }
+  }
+  /* badge on loot tab */
+  const lootTab=document.querySelector('.m-tab[data-panel="mLoot"]');
+  if(lootTab) lootTab.textContent=`🎒 Loot${localInventory.length?" ("+localInventory.length+")":""}`;
 }
 async function tradeItem(iid){
   const r=await api("/api/trade",{sessionId:SID,iid});
@@ -1002,6 +1105,7 @@ async function tradeItem(iid){
   localInventory=localInventory.filter(i=>i.iid!==iid);
   applySession(r.session); renderInventory();
   toast("Traded","+" + r.gained+" BTDOOR for "+r.item.name+".");
+  if((phase==="sleeping"||phase==="goingToSleep")&&r.session.balance>=(cfg.feedCost||10)) wakeUp();
 }
 function applyInventory(inv){ localInventory=inv||[]; renderInventory(); }
 
@@ -1019,10 +1123,22 @@ function eventBannerActive(ev){ const b=$("#eventBanner"); b.classList.add("acti
 function eventBannerCalm(){ const b=$("#eventBanner"); b.classList.remove("active"); b.style.cursor="pointer"; b.title="tap to time-travel"; b.textContent="⟲ "+((ERAS[activeEra]&&ERAS[activeEra].label)||"The Keep")+" · tap to time-travel"; }
 const TIERCOLOR={Observer:"#8e8e99",Follower:"#9bc6d9",Disciple:"#76f7b4",Harbinger:"#f6a53a",Prophet:"#ff7a18",Doorborn:"#ff5e6c",Ascended:"#b06bff","The Marked":"#ff2a3c"};
 function renderLeaderboard(list){ const el=$("#leaderboard"); el.innerHTML="";
+  const ml=$("#mBoard"); if(ml) ml.innerHTML="";
   for(const r of list){ const me=r.id===`u:${SID}`; const d=document.createElement("div"); d.className="lrow"+(me?" you":"")+(r.sim?" sim":"");
     d.innerHTML=`<div class="pos">${r.position}</div><div class="lname"><strong>${me?"you":r.name}</strong><div class="sub"><span style="color:${TIERCOLOR[r.rank]||'#8e8e99'}">${r.rank}</span>${r.sim?'<span class="seedtag">seed</span>':''}</div></div><div class="lscore">${fmt(r.score)}</div>`;
-    el.appendChild(d); } }
-function whisper(actor,text){ const el=document.createElement("div"); el.className="whisper"; el.innerHTML=`<strong>${actor}</strong> ${text}<time>${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</time>`; $("#whispers").prepend(el); while($("#whispers").children.length>18) $("#whispers").lastElementChild.remove(); }
+    el.appendChild(d);
+    if(ml){ const md=document.createElement("div"); md.className="m-lrow"+(me?" you":"");
+      md.innerHTML=`<div class="pos">${r.position}</div><div><strong>${me?"you":r.name}</strong><div class="sub" style="color:${TIERCOLOR[r.rank]||'#8e8e99'}">${r.rank}</div></div><div class="lscore">${fmt(r.score)}</div>`;
+      ml.appendChild(md); }
+  }
+}
+function whisper(actor,text){
+  const el=document.createElement("div"); el.className="whisper";
+  el.innerHTML=`<strong>${actor}</strong> ${text}<time>${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</time>`;
+  $("#whispers").prepend(el); while($("#whispers").children.length>18) $("#whispers").lastElementChild.remove();
+  /* mobile chat */
+  const mc=$("#mChat"); if(mc){ const me=document.createElement("div"); me.className="m-whisper"; me.innerHTML=`<strong>${actor}</strong> ${text}<time>${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</time>`; mc.prepend(me); while(mc.children.length>18) mc.lastElementChild.remove(); }
+}
 
 /* ---------- SSE ---------- */
 function openStream(){ const es=new EventSource("/api/stream");
@@ -1077,7 +1193,7 @@ async function feed(){
   applySession(out.session); comboLocal=out.session.combo; setDevoured(out.devoured);
   if(out.rankedUp) toast("Ascension","You are now "+out.rankedUp+".");
   if(out.personal){ if(out.personal.kind==="golden") accent="#ffe28a"; toast(out.personal.title,out.personal.text); }
-  if(out.collectable){ localInventory.push(out.collectable); renderInventory(); toast(out.collectable.rarity.toUpperCase()+" DROP",out.collectable.name+" — "+out.collectable.desc+" Trade it from the loot bag."); }
+  if(out.collectable){ toast(out.collectable.rarity.toUpperCase()+" DROP",out.collectable.name+" — "+out.collectable.desc+" Trade it from the loot bag."); }
 }
 $("#feed").onclick=feed; $("#shell").onclick=feed;
 window.addEventListener("keydown",e=>{ if(e.code==="Space"&&!$("#tutorial").classList.contains("show")){ e.preventDefault(); feed(); } });
@@ -1132,6 +1248,48 @@ $("#tutSkip").onclick=closeTut; $("#help").onclick=openTut;
 boot();
 let seen=false; try{ seen=!!localStorage.getItem("door-tutorial-v2"); }catch(_){}
 if(!seen) openTut();
+
+/* ============================================================
+   MOBILE DRAWER — tab switching + collapse toggle
+============================================================ */
+(function(){
+  const drawer=document.getElementById("mDrawer");
+  if(!drawer) return;
+  const tabs=drawer.querySelectorAll(".m-tab");
+  const panels=drawer.querySelectorAll(".m-panel");
+
+  function haptic(){ try{ navigator.vibrate&&navigator.vibrate(18); }catch(_){} }
+
+  tabs.forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      haptic();
+      const target=tab.dataset.panel;
+      const wasActive=tab.classList.contains("active");
+      if(wasActive && !drawer.classList.contains("collapsed")){
+        /* tap active tab to collapse */
+        drawer.classList.add("collapsed"); return;
+      }
+      /* expand and switch panel */
+      drawer.classList.remove("collapsed");
+      tabs.forEach(t=>t.classList.remove("active"));
+      panels.forEach(p=>p.classList.remove("show"));
+      tab.classList.add("active");
+      const panel=document.getElementById(target);
+      if(panel) panel.classList.add("show");
+    });
+  });
+
+  /* Swipe-up to open, swipe-down to close */
+  let ty0=null;
+  drawer.addEventListener("touchstart",e=>{ ty0=e.touches[0].clientY; },{passive:true});
+  drawer.addEventListener("touchend",e=>{
+    if(ty0===null) return;
+    const dy=ty0 - e.changedTouches[0].clientY;
+    if(dy>30) drawer.classList.remove("collapsed");
+    else if(dy<-30) drawer.classList.add("collapsed");
+    ty0=null;
+  },{passive:true});
+})();
 </script>
 </body>
 </html>
