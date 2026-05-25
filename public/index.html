@@ -577,6 +577,19 @@ function getCurrentFaceFrame() {
   return 0;                                            // idle: eyes open, mouth closed
 }
 
+/* Era tint colours — blended into visible face pixels so the face always
+   harmonises with whatever door/background is behind it.            */
+const FACE_TINTS = {
+  keep:     [140,  90,  40, 0.20],   // warm medieval amber
+  egypt:    [200, 155,  35, 0.22],   // sun-gold
+  rome:     [185,  75,  40, 0.20],   // terracotta
+  edo:      [175, 100,  50, 0.18],   // warm lacquer
+  seas:     [ 55, 110, 155, 0.18],   // deep ocean blue-grey
+  victorian:[100,  80,  55, 0.22],   // sepia fog
+  neon:     [ 25, 165, 225, 0.22],   // electric cyan
+  surreal:  [115,  35, 150, 0.22],   // void-purple
+};
+
 function getProcessedFace(era, frameIdx) {
   if (!faceCanvasCache[era]) faceCanvasCache[era] = {};
   if (faceCanvasCache[era][frameIdx]) return faceCanvasCache[era][frameIdx];
@@ -589,9 +602,35 @@ function getProcessedFace(era, frameIdx) {
   const ox = oc.getContext('2d');
   ox.drawImage(img, 0, 0);
   const id = ox.getImageData(0, 0, oc.width, oc.height);
-  const d = id.data;
+  const d  = id.data;
+  const [tr, tg, tb, ta] = FACE_TINTS[era] || [120, 90, 50, 0.18];
+
   for (let i = 0; i < d.length; i += 4) {
-    if (d[i] > 200 && d[i+1] > 200 && d[i+2] > 200) d[i+3] = 0;
+    const r = d[i], g = d[i+1], b = d[i+2];
+
+    /* ---- luminance + saturation aware background removal ---- */
+    const lum  = r * 0.299 + g * 0.587 + b * 0.114;
+    const maxC = Math.max(r, g, b);
+    const sat  = maxC < 8 ? 0 : (maxC - Math.min(r, g, b)) / maxC;
+
+    if (lum > 232 && sat < 0.10) {
+      d[i+3] = 0;   // clear white / near-grey → fully transparent
+      continue;
+    }
+    if (lum > 178 && sat < 0.26) {
+      // soft transition: bright + desaturated pixels fade out gently
+      const brightT  = (lum  - 178) / 54;           // 0..1 across 178→232
+      const desatT   = Math.max(0, 1 - sat / 0.26); // 1=grey, 0=colourful
+      const fade     = Math.min(1, brightT * desatT);
+      d[i+3] = Math.max(0, Math.round((1 - fade) * d[i+3]));
+    }
+
+    /* ---- era tint: visible pixels get a colour cast to match background ---- */
+    if (d[i+3] > 0) {
+      d[i]   = Math.round(r * (1 - ta) + tr * ta);
+      d[i+1] = Math.round(g * (1 - ta) + tg * ta);
+      d[i+2] = Math.round(b * (1 - ta) + tb * ta);
+    }
   }
   ox.putImageData(id, 0, 0);
   faceCanvasCache[era][frameIdx] = oc;
@@ -601,11 +640,27 @@ function getProcessedFace(era, frameIdx) {
 function drawFaceOnDoor(dw, dh, era, frameIdx) {
   const img = getProcessedFace(era, frameIdx);
   if (!img) return;
-  cx.save();
   const ar = img.width / img.height, br = dw / dh;
   let fw, fh, fx, fy;
-  if (ar > br) { fw=dw*0.92; fh=fw/ar; fx=dw*0.04; fy=(dh-fh)*0.36; }
-  else          { fh=dh*0.88; fw=fh*ar; fx=(dw-fw)/2; fy=dh*0.05; }
+  if (ar > br) { fw=dw*0.92; fh=fw/ar; fx=dw*0.04; fy=(dh-fh)*0.32; }
+  else          { fh=dh*0.88; fw=fh*ar; fx=(dw-fw)/2; fy=dh*0.06; }
+
+  /* Pass 1 — multiply: any residual light fringe multiplies with the door
+     beneath it (white × door colour = door colour), dark lines darken the wood/stone.
+     Net effect: face looks printed/carved onto the door surface.          */
+  cx.save();
+  cx.globalCompositeOperation = 'multiply';
+  cx.drawImage(img, fx, fy, fw, fh);
+  cx.restore();
+
+  /* Pass 2 — source-over at partial opacity: restores enough of the face's
+     natural colour so it reads as a face, not just a dark smear.
+     Shadow gives a slight carved-in / raised depth.                       */
+  cx.save();
+  cx.shadowColor = 'rgba(0,0,0,0.45)';
+  cx.shadowBlur  = 14;
+  cx.shadowOffsetY = 3;
+  cx.globalAlpha = 0.42;
   cx.drawImage(img, fx, fy, fw, fh);
   cx.restore();
 }
