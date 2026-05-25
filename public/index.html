@@ -66,7 +66,33 @@
   .whisper strong{color:var(--glow);font-family:var(--ritual);font-weight:700;font-size:.82rem;letter-spacing:.04em;}
   .whisper time{display:block;color:var(--dim);font-size:.66rem;margin-top:4px;}
 
-  .door-wrap{display:grid;grid-template-rows:auto minmax(300px,1fr) auto;gap:16px;min-height:0;min-width:0;}
+  .door-wrap{display:grid;grid-template-rows:auto auto minmax(300px,1fr) auto;gap:12px;min-height:0;min-width:0;}
+
+  /* ---- HP bar (Minecraft boss-bar style) ---- */
+  .hp-bar-wrap{position:relative;border:1px solid rgba(180,30,30,.5);border-radius:6px;overflow:visible;background:rgba(12,4,4,.9);box-shadow:0 0 24px rgba(180,30,30,.22),inset 0 1px 0 rgba(255,255,255,.04);}
+  .hp-bar-fill{height:28px;border-radius:5px;background:linear-gradient(90deg,#8b0000,#c0392b 30%,#e74c3c 55%,#ff6b6b 72%,#c0392b);background-size:200% 100%;transition:width .18s cubic-bezier(.2,.8,.4,1),background-color .4s;position:relative;overflow:hidden;}
+  .hp-bar-fill::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 18px,rgba(0,0,0,.18) 19px,rgba(0,0,0,.18) 20px);pointer-events:none;}
+  .hp-bar-fill.crit{animation:hpCrit .6s ease-in-out infinite;background:linear-gradient(90deg,#ff0000,#ff4444 50%,#ff0000);}
+  @keyframes hpCrit{0%,100%{box-shadow:0 0 0 0 rgba(255,50,50,.4);}50%{box-shadow:0 0 16px 4px rgba(255,50,50,.6);}}
+  .hp-bar-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:.68rem;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,1),0 0 8px rgba(0,0,0,.9);font-family:var(--ritual);letter-spacing:.08em;pointer-events:none;z-index:2;}
+  .hp-bar-text .hp-name{font-size:.62rem;letter-spacing:.2em;opacity:.85;}
+  .hp-bar-text .hp-num{font-variant-numeric:tabular-nums;font-size:.72rem;}
+  .hp-bar-text .hp-round{font-size:.55rem;opacity:.7;letter-spacing:.16em;text-transform:uppercase;}
+
+  /* hit-flash overlay on canvas */
+  .hit-flash{position:absolute;inset:0;border-radius:18px;background:rgba(214,61,61,.0);pointer-events:none;z-index:4;transition:none;}
+  .hit-flash.bang{animation:hitFade .32s forwards;}
+  @keyframes hitFade{0%{background:rgba(214,61,61,.52);}100%{background:rgba(214,61,61,.0);}}
+
+  /* door-death full-screen flash */
+  .death-flash{position:fixed;inset:0;z-index:60;pointer-events:none;background:radial-gradient(circle at center,rgba(255,80,60,.55),rgba(0,0,0,.92));opacity:0;transition:opacity .1s;}
+  .death-flash.show{opacity:1;animation:deathPulse 1.2s forwards;}
+  @keyframes deathPulse{0%{opacity:1;}40%{opacity:.95;}100%{opacity:0;}}
+
+  /* shake */
+  @keyframes shake{0%,100%{transform:none;}10%,50%,90%{transform:translate(-6px,0) rotate(-.5deg);}30%,70%{transform:translate(6px,0) rotate(.5deg);}20%,60%,80%{transform:translate(-3px,2px);}}
+  .shaking{animation:shake .5s;}
+
   .event-banner{min-height:46px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line);border-radius:12px;background:rgba(10,10,14,.5);color:var(--muted);font-family:var(--ritual);text-transform:uppercase;letter-spacing:.2em;font-size:.74rem;padding:10px 16px;transition:all .4s;}
   .event-banner.active{border-color:rgba(246,165,58,.6);background:rgba(60,30,8,.55);color:var(--glow);box-shadow:0 0 40px rgba(246,165,58,.3);text-shadow:0 0 20px rgba(246,165,58,.6);}
   .canvas-shell{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;background:radial-gradient(circle at 50% 44%,rgba(246,165,58,.1),transparent 38%),rgba(0,0,0,.32);box-shadow:inset 0 0 120px rgba(0,0,0,.8),0 24px 80px rgba(0,0,0,.5);transition:box-shadow .3s;}
@@ -248,7 +274,15 @@
       <div class="list" id="leaderboard"></div></aside>
     <section class="door-wrap">
       <div class="event-banner" id="eventBanner">The Door is quiet. This is not mercy.</div>
-      <div class="canvas-shell" id="shell"><canvas id="door"></canvas><div class="bubble" id="bubble"></div></div>
+      <div class="hp-bar-wrap" id="hpBarWrap">
+        <div class="hp-bar-fill" id="hpBarFill" style="width:100%"></div>
+        <div class="hp-bar-text">
+          <span class="hp-name">THE DOOR</span>
+          <span class="hp-num" id="hpNum">1000 / 1000</span>
+          <span class="hp-round" id="hpRound">ROUND 1</span>
+        </div>
+      </div>
+      <div class="canvas-shell" id="shell"><canvas id="door"></canvas><div class="bubble" id="bubble"></div><div class="hit-flash" id="hitFlash"></div></div>
       <div class="feed-panel">
         <div class="feed-card"><span>Free offerings</span><strong id="freeFeeds">—</strong></div>
         <div class="feed-action"><button class="primary" id="feed">Feed The Door</button></div>
@@ -271,6 +305,8 @@
     <div class="inv-chips" id="invChips"></div>
   </div>
 </main>
+
+<div class="death-flash" id="deathFlash"></div>
 
 <!-- Mobile bottom drawer (visible only on ≤768px) -->
 <div class="m-drawer collapsed" id="mDrawer">
@@ -310,6 +346,55 @@ const $ = s => document.querySelector(s);
 const fmt = n => Math.floor(n).toLocaleString("en-US");
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 let SID=null, cfg={feedCost:10}, comboLocal=1, lastDevoured=0;
+let doorHP=1000, doorMaxHP=1000, doorRound=1;
+
+/* ============ HP bar & hit flash ============ */
+function updateHPBar(hp, maxHp, round){
+  doorHP=hp; doorMaxHP=maxHp; if(round!=null) doorRound=round;
+  const pct=Math.max(0,hp/maxHp)*100;
+  const fill=$("#hpBarFill");
+  fill.style.width=pct+"%";
+  fill.classList.toggle("crit",pct<20);
+  $("#hpNum").textContent=`${fmt(hp)} / ${fmt(maxHp)}`;
+  if(round!=null) $("#hpRound").textContent=`ROUND ${round}`;
+}
+
+function triggerHitFlash(){
+  const f=$("#hitFlash");
+  f.classList.remove("bang");
+  void f.offsetWidth; // force reflow to restart animation
+  f.classList.add("bang");
+  setTimeout(()=>f.classList.remove("bang"),340);
+}
+
+function triggerDoorDeath(slayers, newRound){
+  /* red death screen flash */
+  const df=$("#deathFlash");
+  df.classList.add("show");
+  setTimeout(()=>df.classList.remove("show"),1400);
+
+  /* canvas shake */
+  const shell=$("#shell");
+  shell.classList.add("shaking");
+  setTimeout(()=>shell.classList.remove("shaking"),550);
+
+  /* big SLAIN text */
+  $("#gtext").textContent="SLAIN";
+  $("#gflash").classList.add("show");
+  shake=22; glow=2.0;
+  setTimeout(()=>$("#gflash").classList.remove("show"),2500);
+
+  /* slayer prize toast */
+  if(slayers&&slayers.includes(me?.name)){
+    setTimeout(()=>toast("SLAYER'S MARK","You dealt killing blows this round. A Slayer's Mark is in your loot bag."),1500);
+  } else if(slayers&&slayers.length){
+    setTimeout(()=>toast("DOOR SLAIN",`Round ${doorRound} ended. Slayers: ${slayers.join(", ")}`),1500);
+  }
+
+  /* restore HP bar to full for new round */
+  setTimeout(()=>updateHPBar(doorMaxHP,doorMaxHP,newRound||doorRound+1),1000);
+}
+/* ============================================ */
 
 /* ---------- Solana / Phantom ---------- */
 const TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
@@ -1143,10 +1228,12 @@ function whisper(actor,text){
 /* ---------- SSE ---------- */
 function openStream(){ const es=new EventSource("/api/stream");
   es.onopen=()=> $("#connState").textContent="live"; es.onerror=()=> $("#connState").textContent="reconnecting…";
-  es.addEventListener("snapshot",e=>{ const d=JSON.parse(e.data); setDevoured(d.devoured); renderLeaderboard(d.leaderboard); applyWorld(d.world); });
+  es.addEventListener("snapshot",e=>{ const d=JSON.parse(e.data); setDevoured(d.devoured); renderLeaderboard(d.leaderboard); applyWorld(d.world); if(d.doorHP!=null) updateHPBar(d.doorHP,d.doorMaxHP,d.doorRound); });
   es.addEventListener("tick",e=> setDevoured(JSON.parse(e.data).devoured));
   es.addEventListener("leaderboard",e=> renderLeaderboard(JSON.parse(e.data)));
   es.addEventListener("whisper",e=>{ const d=JSON.parse(e.data); whisper(d.actor,d.text); });
+  es.addEventListener("door-hit",e=>{ const d=JSON.parse(e.data); updateHPBar(d.hp,d.maxHp,d.round); });
+  es.addEventListener("door-slain",e=>{ const d=JSON.parse(e.data); triggerDoorDeath(d.slayers,d.newRound); });
   es.addEventListener("global",e=>{
     const d=JSON.parse(e.data);
     triggerCurtainTransition(d.event.anim||"", d.event.accent);
@@ -1191,6 +1278,8 @@ async function feed(){
   if(out.error){ whisper("Threshold", out.message||"…"); return; }
   if(out.duplicate) return;
   applySession(out.session); comboLocal=out.session.combo; setDevoured(out.devoured);
+  triggerHitFlash();
+  if(out.doorHP!=null) updateHPBar(out.doorHP,out.doorMaxHP,out.doorRound);
   if(out.rankedUp) toast("Ascension","You are now "+out.rankedUp+".");
   if(out.personal){ if(out.personal.kind==="golden") accent="#ffe28a"; toast(out.personal.title,out.personal.text); }
   if(out.collectable){ toast(out.collectable.rarity.toUpperCase()+" DROP",out.collectable.name+" — "+out.collectable.desc+" Trade it from the loot bag."); }

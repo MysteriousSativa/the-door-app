@@ -44,7 +44,12 @@ const PUBLIC_DIR = path.join(__dirname, "..", "public");
 const MAX_SSE = Number(process.env.MAX_SSE || 2000); // hard cap on concurrent streams
 
 /* ---------------- world state (authoritative, shared) ---------------- */
-const world = { activeEvent: null, eventEndsAt: 0, cycle: 1 };
+const world = {
+  activeEvent: null, eventEndsAt: 0, cycle: 1,
+  doorHP: engine.DOOR_MAX_HP, doorMaxHP: engine.DOOR_MAX_HP, doorRound: 1,
+};
+// Per-round damage tracking: sessionId -> hits dealt this round
+const roundDamage = new Map();
 
 /* ---------------- SSE clients ---------------- */
 const clients = new Set();
@@ -73,6 +78,45 @@ async function leaderboardSnapshot() {
 }
 const HANDLES = ["stranger","newmouth","late_knock","unmarked","passerby","the_curious"];
 
+/* ---------------- door death handler ---------------- */
+async function handleDoorDeath() {
+  const entries = [...roundDamage.entries()].sort((a, b) => b[1] - a[1]);
+  const topCount = Math.max(1, Math.ceil(entries.length * 0.25));
+  const slayers = entries.slice(0, topCount);
+  const slayerNames = [];
+
+  for (const [sid, dmg] of slayers) {
+    const sess = await store.sessions.get(sid);
+    if (!sess) continue;
+    if (!sess.inventory) sess.inventory = [];
+    const prize = {
+      id: "slayer_mark", name: "Slayer's Mark", rarity: "legendary", value: 999,
+      desc: `Round ${world.doorRound} fell to your hands. The Door does not forget.`,
+      iid: require("crypto").randomBytes(6).toString("hex"),
+    };
+    sess.inventory.push(prize);
+    await store.sessions.set(sid, sess);
+    slayerNames.push(sess.name);
+  }
+
+  broadcast("door-slain", {
+    round: world.doorRound,
+    slayers: slayerNames,
+    newRound: world.doorRound + 1,
+    newHP: engine.DOOR_MAX_HP,
+  });
+  broadcast("whisper", {
+    actor: "The Door",
+    text: slayerNames.length
+      ? `IT IS DEAD. Round ${world.doorRound} — Slayers: ${slayerNames.join(", ")}. A new door takes its place.`
+      : `Round ${world.doorRound} ends. The door resets. It learns nothing.`,
+  });
+
+  roundDamage.clear();
+  world.doorHP = engine.DOOR_MAX_HP;
+  world.doorRound += 1;
+}
+
 /* ---------------- REST + SSE routing ---------------- */
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
@@ -98,6 +142,7 @@ const server = http.createServer(async (req, res) => {
       res.write(`event: snapshot\ndata: ${JSON.stringify({
         devoured: await store.counters.get("devoured"),
         leaderboard: lb, world,
+        doorHP: world.doorHP, doorMaxHP: world.doorMaxHP, doorRound: world.doorRound,
       })}\n\n`);
     });
     req.on("close", () => clients.delete(res));
@@ -218,9 +263,17 @@ const server = http.createServer(async (req, res) => {
     if (out.collectable)
       broadcast("collectable", { player: session.name, collectable: out.collectable });
 
+    // === door health damage ===
+    world.doorHP = Math.max(0, world.doorHP - 1);
+    roundDamage.set(sessionId, (roundDamage.get(sessionId) || 0) + 1);
+    broadcast("door-hit", { hp: world.doorHP, maxHp: world.doorMaxHP, round: world.doorRound, by: session.name });
+    if (world.doorHP <= 0) await handleDoorDeath();
+    // ===========================
+
     const body = {
       ...out, devoured: await store.counters.get("devoured"),
       position: await store.leaderboard.rankOf(`u:${session.id}`),
+      doorHP: world.doorHP, doorMaxHP: world.doorMaxHP, doorRound: world.doorRound,
     };
     await store.ledger.recordResult(nonce, 200, body);
     return sendJSON(res, 200, body);

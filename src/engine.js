@@ -22,10 +22,11 @@ function nextRank(offerings) {
   return RANKS.find(r => r.at > offerings) || null;
 }
 
-const FREE_FEEDS = 5;
-const FEED_COST  = 10;
+const FREE_FEEDS   = 5;
+const FEED_COST    = 10;
 const COMBO_WINDOW_MS = 900;
-const MAX_COMBO  = 9;
+const MAX_COMBO    = 9;
+const DOOR_MAX_HP  = 1000;   // global shared health; ~3-5 min with 5-10 active feeders
 
 const GLOBAL_EVENTS = [
   { name: "SUN OF RA",      accent: "#e9c44a", durationMs: 70000, multiplier: 2, anim: "egypt",     text: "The Door wakes over the Old Kingdom. The sun of Ra is counting." },
@@ -213,6 +214,7 @@ const COLLECTABLES = [
   { id:"whisper_jar",   name:"Bottled Whisper",   rarity:"rare",      value:90,  desc:"Shaking it is unwise. You will shake it." },
   { id:"marked_relic",  name:"The Marked Relic",  rarity:"legendary", value:500, desc:"It has been to the other side. It is not the same. Neither will you be." },
   { id:"door_splinter", name:"Door Splinter",     rarity:"legendary", value:777, desc:"Genuine fragment of the first door. Probably." },
+  { id:"slayer_mark",   name:"Slayer's Mark",     rarity:"legendary", value:999, desc:"You were there when it fell. The Door does not forget who killed it." },
 ];
 
 function newSession(id) {
@@ -321,6 +323,6 @@ function publicSession(s) {
 }
 
 module.exports = {
-  RANKS, FREE_FEEDS, FEED_COST, GLOBAL_EVENTS, WHISPERS, WHISPERS_BY_ERA, COLLECTABLES,
+  RANKS, FREE_FEEDS, FEED_COST, DOOR_MAX_HP, GLOBAL_EVENTS, WHISPERS, WHISPERS_BY_ERA, COLLECTABLES,
   rankFor, nextRank, newSession, resolveFeed, publicSession,
 };
