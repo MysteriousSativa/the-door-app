@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.local
+.env*.local
+
+# coworker's separate React project — not this app
+vite-supabase-app/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+*.swp

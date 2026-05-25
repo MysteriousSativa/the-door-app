@@ -1,0 +1,16 @@
+{
+  "name": "the-door",
+  "version": "1.0.0",
+  "description": "Feed it. Burn it. It never opens.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}

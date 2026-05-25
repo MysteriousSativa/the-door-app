@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>THE DOOR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050507; --bg2:#0b0b11; --panel:rgba(18,19,27,.62); --panel2:rgba(22,24,33,.95);
+    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+    --text:#f1ece1; --muted:#8e8e99; --dim:#5a5a66;
+    --ember:#f6a53a; --ember2:#ff7a18; --glow:#ffcf7a;
+    --ui:Inter,ui-sans-serif,system-ui,"Segoe UI",sans-serif; --ritual:"Cinzel",Georgia,serif;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;height:100%;overflow:hidden;font-family:var(--ui);color:var(--text);}
+  body{background:var(--bg);position:relative;}
+  body::before{content:"";position:fixed;inset:0;z-index:-3;
+    background:radial-gradient(circle at 50% 34%, rgba(246,165,58,.10), transparent 42%),radial-gradient(circle at 12% 8%, rgba(120,90,255,.06), transparent 30%),radial-gradient(circle at 88% 12%, rgba(214,65,61,.05), transparent 28%),radial-gradient(circle at 50% 120%, rgba(246,165,58,.08), transparent 46%),radial-gradient(ellipse at 50% 40%, var(--bg2), var(--bg) 72%);
+    animation:breathe 12s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{opacity:.92;}50%{opacity:1;}}
+  body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.5;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(circle at center,black 0 40%,transparent 78%);}
+  #grain{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:.045;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+  #vignette{position:fixed;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 240px 70px rgba(0,0,0,.9);}
+  .app{height:100vh;display:grid;grid-template-rows:auto 1fr auto;position:relative;z-index:2;}
+
+  .topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;padding:14px 26px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(5,5,7,.9),rgba(5,5,7,.35));backdrop-filter:blur(10px);}
+  .brand{display:flex;flex-direction:column;gap:1px;}
+  .brand h1{margin:0;font-family:var(--ritual);font-weight:900;font-size:clamp(1.3rem,3vw,2.1rem);letter-spacing:.18em;color:#fff;text-shadow:0 0 26px rgba(246,165,58,.5);}
+  .brand span{color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.32em;}
+  .devoured{justify-self:center;text-align:center;position:relative;}
+  .devoured .label{color:var(--muted);font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;}
+  .qbtn{width:15px;height:15px;border-radius:50%;border:1px solid var(--line2);background:transparent;color:var(--muted);font-size:.6rem;line-height:1;cursor:pointer;display:inline-grid;place-items:center;}
+  .counter{font-variant-numeric:tabular-nums;font-size:clamp(1.4rem,3vw,2.2rem);font-weight:800;color:#fff7e6;letter-spacing:.04em;text-shadow:0 0 26px rgba(246,165,58,.55);line-height:1.05;}
+  .counter.pulse{animation:cpulse .5s;} @keyframes cpulse{0%{text-shadow:0 0 40px rgba(246,165,58,.9);transform:scale(1.05);}100%{transform:scale(1);}}
+  .popover{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:10px;width:min(320px,86vw);background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:14px 16px;text-align:left;z-index:30;box-shadow:0 24px 60px rgba(0,0,0,.7);font-size:.8rem;line-height:1.5;color:var(--muted);display:none;}
+  .popover.show{display:block;} .popover b{color:var(--glow);} .popover .fine{color:var(--dim);font-size:.7rem;margin-top:8px;display:block;}
+  .wallet{justify-self:end;display:flex;gap:10px;align-items:center;}
+  .balance{padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.04);font-variant-numeric:tabular-nums;font-size:.85rem;}
+  button{font:inherit;}
+  .ghost,.primary,.icon{border:1px solid var(--line2);color:var(--text);background:rgba(255,255,255,.05);cursor:pointer;min-height:40px;padding:0 16px;font-weight:700;letter-spacing:.04em;border-radius:10px;text-transform:uppercase;font-size:.78rem;transition:transform .12s,background .15s,box-shadow .2s;}
+  .icon{width:42px;padding:0;display:grid;place-items:center;font-size:1rem;border-radius:50%;}
+  .ghost:hover,.icon:hover{transform:translateY(-1px);background:rgba(255,255,255,.1);}
+  .primary{border:none;color:#1a0d02;background:linear-gradient(180deg,var(--glow),var(--ember2));box-shadow:0 0 30px rgba(246,165,58,.35),0 6px 20px rgba(0,0,0,.5);font-weight:900;}
+  .primary:hover{transform:translateY(-1px);box-shadow:0 0 44px rgba(246,165,58,.55),0 8px 24px rgba(0,0,0,.55);}
+
+  .stage{display:grid;grid-template-columns:minmax(230px,310px) minmax(0,1fr) minmax(230px,310px);gap:clamp(14px,2vw,24px);padding:clamp(14px,2vw,26px);min-height:0;}
+  .rail{border:1px solid var(--line);border-radius:16px;background:var(--panel);backdrop-filter:blur(14px);display:flex;flex-direction:column;overflow:hidden;min-height:0;box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);}
+  .rail header{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border-bottom:1px solid var(--line);}
+  .rail h2{margin:0;font-family:var(--ritual);font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:#e9e0cf;}
+  .chip{font-size:.58rem;font-weight:800;padding:4px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.1em;background:rgba(118,247,180,.16);color:#9fffce;border:1px solid rgba(118,247,180,.3);}
+  .list,.whispers{overflow:auto;padding:8px;min-height:0;scrollbar-width:thin;}
+  .list::-webkit-scrollbar,.whispers::-webkit-scrollbar{width:5px;} .list::-webkit-scrollbar-thumb,.whispers::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;}
+  .lrow{display:grid;grid-template-columns:24px 1fr auto;gap:9px;align-items:center;padding:9px 9px;border-radius:10px;font-variant-numeric:tabular-nums;transition:background .3s;}
+  .lrow+.lrow{margin-top:2px;} .lrow .pos{color:var(--dim);font-size:.8rem;text-align:right;}
+  .lrow.you{background:linear-gradient(90deg,rgba(246,165,58,.18),rgba(246,165,58,.04));box-shadow:inset 0 0 0 1px rgba(246,165,58,.32);}
+  .lrow.sim{opacity:.62;}
+  .lname{min-width:0;} .lname strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem;font-weight:600;}
+  .lname .sub{display:flex;gap:6px;align-items:center;} .lname span{color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;}
+  .seedtag{font-size:.54rem;color:var(--dim);border:1px solid var(--line);border-radius:4px;padding:1px 4px;letter-spacing:.08em;}
+  .lscore{color:var(--glow);font-weight:800;font-size:.84rem;}
+  .whisper{padding:11px 9px;border-bottom:1px solid rgba(255,255,255,.05);line-height:1.45;font-size:.88rem;color:#ddd5c6;}
+  .whisper strong{color:var(--glow);font-family:var(--ritual);font-weight:700;font-size:.82rem;letter-spacing:.04em;}
+  .whisper time{display:block;color:var(--dim);font-size:.66rem;margin-top:4px;}
+
+  .door-wrap{display:grid;grid-template-rows:auto minmax(300px,1fr) auto;gap:16px;min-height:0;min-width:0;}
+  .event-banner{min-height:46px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line);border-radius:12px;background:rgba(10,10,14,.5);color:var(--muted);font-family:var(--ritual);text-transform:uppercase;letter-spacing:.2em;font-size:.74rem;padding:10px 16px;transition:all .4s;}
+  .event-banner.active{border-color:rgba(246,165,58,.6);background:rgba(60,30,8,.55);color:var(--glow);box-shadow:0 0 40px rgba(246,165,58,.3);text-shadow:0 0 20px rgba(246,165,58,.6);}
+  .canvas-shell{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;background:radial-gradient(circle at 50% 44%,rgba(246,165,58,.1),transparent 38%),rgba(0,0,0,.32);box-shadow:inset 0 0 120px rgba(0,0,0,.8),0 24px 80px rgba(0,0,0,.5);transition:box-shadow .3s;}
+  .canvas-shell:active{box-shadow:inset 0 0 120px rgba(0,0,0,.7),0 0 60px rgba(246,165,58,.25);}
+  #door{width:100%;height:100%;display:block;}
+  .bubble{position:absolute;left:50%;top:10px;transform:translateX(-50%) translateY(20px) scale(0.9);max-width:min(85%,460px);background:rgba(15,15,22,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:16px 20px;color:#fdfdfd;font-size:1rem;line-height:1.45;font-weight:600;box-shadow:0 30px 60px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,0.15), 0 0 30px rgba(246,165,58,.15);opacity:0;pointer-events:none;transition:all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);z-index:6;text-align:center;}
+  .bubble.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
+  .bubble::after{content:"";position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid rgba(15,15,22,0.7);filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5));}
+  .feed-panel{display:grid;grid-template-columns:minmax(130px,.78fr) minmax(180px,1fr) minmax(130px,.78fr);gap:12px;}
+  .feed-card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:13px;text-align:center;}
+  .feed-card strong{display:block;font-size:1.2rem;font-variant-numeric:tabular-nums;color:#fff3df;}
+  .feed-card span{color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:.16em;}
+  .feed-action .primary{width:100%;min-height:66px;font-size:1.05rem;letter-spacing:.16em;border-radius:14px;position:relative;}
+  .feed-action .primary::after{content:"";position:absolute;inset:0;border-radius:14px;animation:pulseBtn 2.6s infinite;}
+  @keyframes pulseBtn{0%{box-shadow:0 0 0 0 rgba(246,165,58,.45);}70%{box-shadow:0 0 0 16px rgba(246,165,58,0);}100%{box-shadow:0 0 0 0 rgba(246,165,58,0);}}
+
+  .statsbar{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:16px;background:var(--panel);backdrop-filter:blur(14px);margin:0 clamp(14px,2vw,26px) clamp(14px,2vw,26px);overflow:hidden;}
+  .stat{padding:13px 14px;border-right:1px solid rgba(255,255,255,.06);} .stat:last-child{border-right:0;}
+  .stat .label{color:var(--muted);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;}
+  .stat strong{display:block;font-size:clamp(.95rem,2vw,1.2rem);margin-top:3px;}
+  .stat strong#rank{font-family:var(--ritual);color:var(--glow);text-shadow:0 0 16px rgba(246,165,58,.4);}
+
+  .conn{position:fixed;left:16px;bottom:8px;font-size:.62rem;color:var(--dim);z-index:9;} .conn b{color:#76f7b4;}
+  .footer-note{position:fixed;bottom:8px;left:0;right:0;text-align:center;font-size:.58rem;color:#3c3a34;z-index:4;letter-spacing:.04em;}
+
+  .toast-wrap{position:fixed;right:20px;bottom:48px;z-index:40;display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+  .toast{border:1px solid rgba(246,165,58,.45);border-radius:12px;background:rgba(14,12,16,.96);padding:13px 17px;max-width:300px;box-shadow:0 18px 50px rgba(0,0,0,.65),0 0 24px rgba(246,165,58,.18);animation:tin .3s;cursor:pointer;}
+  .toast b{color:var(--glow);display:block;font-family:var(--ritual);text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;margin-bottom:3px;}
+  .toast span{color:var(--muted);font-size:.8rem;line-height:1.4;}
+  @keyframes tin{from{opacity:0;transform:translateX(24px);}to{opacity:1;}}
+
+  .gflash{position:fixed;inset:0;z-index:30;pointer-events:none;display:grid;place-items:center;opacity:0;background:radial-gradient(circle at center,rgba(214,65,61,.3),rgba(0,0,0,.88));transition:opacity .35s;}
+  .gflash.show{opacity:1;}
+  .gflash strong{font-family:var(--ritual);font-weight:900;font-size:clamp(2.4rem,10vw,7rem);text-transform:uppercase;letter-spacing:.1em;text-shadow:0 0 50px rgba(214,65,61,.8);}
+  .overlay{position:fixed;inset:0;z-index:35;display:none;place-items:center;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);}
+  .overlay.show{display:grid;}
+  .modal{width:min(500px,92%);border:1px solid var(--line2);border-radius:18px;background:var(--panel2);padding:28px;text-align:center;box-shadow:0 40px 120px rgba(0,0,0,.7);}
+  .modal h2{margin:0 0 10px;font-family:var(--ritual);font-size:clamp(1.5rem,5vw,2.3rem);text-transform:uppercase;letter-spacing:.06em;text-shadow:0 0 30px rgba(246,165,58,.4);}
+  .modal p{color:var(--muted);line-height:1.55;font-size:.95rem;}
+  .modal-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;}
+  .dots{display:flex;gap:7px;justify-content:center;margin-top:18px;}
+  .dots i{width:7px;height:7px;border-radius:50%;background:var(--line2);transition:background .2s,transform .2s;}
+  .dots i.on{background:var(--glow);transform:scale(1.3);}
+
+  .curtain-wrap{position:fixed;inset:0;z-index:999;pointer-events:none;overflow:hidden;display:none;}
+  .curtain-wrap.show{display:block;}
+  .curtain-panel{position:absolute;top:0;bottom:0;width:110vw;background:linear-gradient(90deg,#3b0000 0%,#8b0000 15%,#500000 35%,#990000 50%,#4a0000 70%,#b30000 85%,#3b0000 100%);box-shadow:inset -20px 0 40px rgba(0,0,0,0.9), 30px 0 80px rgba(0,0,0,1);border-right:12px solid #ffcc00;border-left:12px solid #ffcc00;transform:translateX(-100%);will-change:transform;}
+  .curtain-panel::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg, transparent, rgba(0,0,0,.4) 40px, transparent 80px);mix-blend-mode:multiply;}
+  .curtain-wrap.animating .curtain-panel{animation:curtainWipe 2.2s cubic-bezier(.65,0,.35,1) forwards;}
+  @keyframes curtainWipe{0%{transform:translateX(-105vw);} 40%,60%{transform:translateX(-5vw);} 100%{transform:translateX(105vw);}}
+
+  .stash{display:flex;flex-direction:column;align-items:flex-end;line-height:1.05;padding:6px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(246,165,58,.06);cursor:help;}
+  .stash .slabel{color:var(--muted);font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;}
+  .stash strong{font-variant-numeric:tabular-nums;font-size:.82rem;color:#fff3df;margin-top:1px;}
+  .stash em{font-style:normal;font-size:.6rem;color:var(--glow);opacity:.85;letter-spacing:.04em;}
+  .ghost.wake-cta{border-color:var(--glow);color:#1a0d02;background:linear-gradient(180deg,var(--glow),var(--ember2));animation:wakePulse 1.6s infinite;font-weight:900;}
+  @keyframes wakePulse{0%,100%{box-shadow:0 0 0 0 rgba(246,165,58,.5);}50%{box-shadow:0 0 0 12px rgba(246,165,58,0);}}
+  .primary.dozing{filter:grayscale(.7) brightness(.6);}
+  .primary.dozing::after{animation:none;}
+
+  @media(max-width:980px){.stage{grid-template-columns:1fr;grid-template-rows:auto minmax(420px,1fr);} .rail{display:none;} .statsbar{grid-template-columns:repeat(2,1fr);} .topbar{padding:12px 16px;} .stash{display:none;}}
+
+  .inventory-bar{display:flex;align-items:center;gap:12px;margin:0 clamp(14px,2vw,26px) clamp(10px,1.5vw,16px);padding:10px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);backdrop-filter:blur(14px);flex-wrap:wrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+  .inv-label{color:var(--muted);font-size:.6rem;text-transform:uppercase;letter-spacing:.18em;white-space:nowrap;flex-shrink:0;}
+  .inv-chips{display:flex;flex-wrap:wrap;gap:8px;min-width:0;}
+  .inv-chip{padding:5px 11px;border-radius:20px;font-size:.72rem;font-weight:700;cursor:pointer;border:1px solid;transition:transform .12s,box-shadow .15s;letter-spacing:.03em;}
+  .inv-chip:hover{transform:translateY(-1px);}
+  .inv-chip.common{background:rgba(142,142,153,.15);border-color:rgba(142,142,153,.4);color:#9e9eab;}
+  .inv-chip.uncommon{background:rgba(118,247,180,.10);border-color:rgba(118,247,180,.4);color:#76f7b4;}
+  .inv-chip.rare{background:rgba(100,160,255,.12);border-color:rgba(100,160,255,.42);color:#7aabff;}
+  .inv-chip.legendary{background:rgba(255,215,80,.12);border-color:rgba(255,215,80,.5);color:#ffd750;animation:legGlow 1.8s ease-in-out infinite;}
+  @keyframes legGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,215,80,.35);}50%{box-shadow:0 0 14px 5px rgba(255,215,80,.18);}}
+</style>
+<script src="https://unpkg.com/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
+</head>
+<body>
+<div id="grain"></div>
+<div id="vignette"></div>
+<main class="app">
+  <header class="topbar">
+    <div class="brand"><h1>THE DOOR</h1><span>BTDOOR feeds it</span></div>
+    <div class="devoured">
+      <div class="label">Offerings Devoured <button class="qbtn" id="devInfo" title="what is this?">?</button></div>
+      <div class="counter" id="devoured">—</div>
+      <div class="popover" id="devPopover">
+        <b>Offerings Devoured</b> is the amount of BTDOOR <b>permanently burned</b> by feeding. Every offering is destroyed forever, so the total supply of BTDOOR <b>only ever falls</b> — it cannot go back up.
+        <span class="fine">Shrinking supply can support value, but nothing guarantees a price. This is a game, not investment advice.</span>
+      </div>
+    </div>
+    <div class="wallet">
+      <button class="icon" id="help" title="how it works">?</button>
+      <button class="icon" id="sound" title="sound">♪</button>
+      <div class="stash" title="Illustrative value of the BTDOOR you hold. SIMULATED · PRE-LAUNCH — not a real price and not financial value.">
+        <span class="slabel">Won stash</span>
+        <strong id="stashTok">0 BTDOOR</strong>
+        <em id="stashUsd">≈ $0.00 · sim</em>
+      </div>
+      <div class="balance" id="balance">0 BT</div>
+      <button class="ghost" id="connect">Acquire</button>
+    </div>
+  </header>
+
+  <section class="stage">
+    <aside class="rail"><header><h2>Congregation</h2><span class="chip" id="cycle">Cycle 1</span></header>
+      <div class="list" id="leaderboard"></div></aside>
+    <section class="door-wrap">
+      <div class="event-banner" id="eventBanner">The Door is quiet. This is not mercy.</div>
+      <div class="canvas-shell" id="shell"><canvas id="door"></canvas><div class="bubble" id="bubble"></div></div>
+      <div class="feed-panel">
+        <div class="feed-card"><span>Free offerings</span><strong id="freeFeeds">—</strong></div>
+        <div class="feed-action"><button class="primary" id="feed">Feed The Door</button></div>
+        <div class="feed-card"><span>Cost after wall</span><strong id="cost">10 BT</strong></div>
+      </div>
+    </section>
+    <aside class="rail"><header><h2>The Door Speaks</h2><span class="chip">Live</span></header>
+      <div class="whispers" id="whispers"></div></aside>
+  </section>
+
+  <footer class="statsbar">
+    <div class="stat"><span class="label">Rank</span><strong id="rank">Observer</strong></div>
+    <div class="stat"><span class="label">Offerings</span><strong id="offerings">0</strong></div>
+    <div class="stat"><span class="label">Streak</span><strong id="streak">0</strong></div>
+    <div class="stat"><span class="label">Combo</span><strong id="combo">x1</strong></div>
+    <div class="stat"><span class="label">Status</span><strong id="status">Unmarked</strong></div>
+  </footer>
+  <div class="inventory-bar" id="inventoryBar" style="display:none">
+    <span class="inv-label">Loot Bag</span>
+    <div class="inv-chips" id="invChips"></div>
+  </div>
+</main>
+
+<div class="conn">server: <b id="connState">connecting…</b></div>
+<div class="gflash" id="gflash"><strong id="gtext">Blood Hour</strong></div>
+<div class="toast-wrap" id="toasts"></div>
+<div class="footer-note">BTDOOR does nothing but feed The Door. A game and a meme — not an investment.</div>
+
+<div class="overlay" id="tutorial"><div class="modal">
+  <h2 id="tutTitle">THE DOOR</h2>
+  <p id="tutBody"></p>
+  <div class="dots" id="tutDots"></div>
+  <div class="modal-actions"><button class="ghost" id="tutSkip">Skip</button><button class="primary" id="tutNext">Next</button></div>
+</div></div>
+
+<div class="overlay" id="wall"><div class="modal">
+  <h2>The Door Wants More</h2>
+  <p>Your free offerings are spent. You need BTDOOR to keep feeding. Buy it on pump.fun, then connect your Phantom wallet.</p>
+  <div class="modal-actions"><button class="primary" id="acquire">Buy BTDOOR on pump.fun</button><button class="ghost" id="waitBtn">Close</button></div>
+</div></div>
+
+<div class="curtain-wrap" id="curtain"><div class="curtain-panel"></div></div>
+
+<script type="module">
+"use strict";
+const $ = s => document.querySelector(s);
+const fmt = n => Math.floor(n).toLocaleString("en-US");
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+let SID=null, cfg={feedCost:10}, comboLocal=1, lastDevoured=0;
+
+/* ---------- Solana / Phantom ---------- */
+const TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+const ASSOC_TOKEN_PROGRAM = new solanaWeb3.PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJe8bv");
+let TOKEN_MINT_ADDR = null;
+
+let solConn = null, walletPubkey = null;
+
+async function getSolConn() {
+  if (solConn) return solConn;
+  const rpc = await api("/api/config");
+  solConn = new solanaWeb3.Connection(rpc.rpc, "confirmed");
+  return solConn;
+}
+
+function getAssociatedTokenAddress(mint, owner) {
+  const [addr] = solanaWeb3.PublicKey.findProgramAddressSync(
+    [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+    ASSOC_TOKEN_PROGRAM
+  );
+  return addr;
+}
+
+async function buildBurnTx(mintAddr, ownerPubkey, amount, decimals) {
+  const conn   = await getSolConn();
+  const mint   = new solanaWeb3.PublicKey(mintAddr);
+  const owner  = new solanaWeb3.PublicKey(ownerPubkey);
+  const ata    = getAssociatedTokenAddress(mint, owner);
+  const rawAmt = BigInt(Math.round(amount * Math.pow(10, decimals)));
+
+  const keys = [
+    { pubkey: ata,    isSigner: false, isWritable: true },
+    { pubkey: mint,   isSigner: false, isWritable: true },
+    { pubkey: owner,  isSigner: true,  isWritable: false },
+  ];
+  const data = Buffer.alloc(9);
+  data.writeUInt8(8, 0);
+  data.writeBigUInt64LE(rawAmt, 1);
+
+  const ix = new solanaWeb3.TransactionInstruction({ keys, programId: TOKEN_PROGRAM_ID, data });
+  const { blockhash } = await conn.getLatestBlockhash();
+  const tx = new solanaWeb3.Transaction({ recentBlockhash: blockhash, feePayer: owner });
+  tx.add(ix);
+  return tx;
+}
+
+let _mintAddr = null;
+async function getMintAddr() {
+  if (_mintAddr) return _mintAddr;
+  const cfg = await api("/api/config");
+  _mintAddr = cfg.mint;
+  TOKEN_MINT_ADDR = _mintAddr;
+  return _mintAddr;
+}
+const bgs = {};
+const faceFrames = {};
+const doorImgs  = {};
+const doorCanvasCache = {};
+const faceCanvasCache = {};
+let faceReactTimer = 0;
+let blinkPhase = 0;       // 0=open 1=half-close 2=closed 3=half-open
+let blinkPhaseTimer = 0;  // seconds left in current phase
+let doorSpeaking = false; // true while speech bubble is visible
+let mouthOpen=0, blink=0, blinkTimer=2;
+
+// Load AI-generated background images
+async function loadBackgroundImages() {
+  const eras = ['keep', 'egypt', 'rome', 'edo', 'seas', 'victorian', 'neon', 'surreal'];
+  for (const era of eras) {
+    const img = new Image();
+    img.src = `bg_${era}.png`;
+    img.onload = () => { bgs[era] = img; };
+    img.onerror = () => { console.log(`bg_${era}.png not found, using procedural render`); };
+  }
+}
+
+function loadFaceAndDoorImages() {
+  const FACE_SRC = {
+    keep: [
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (1).png',
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (2).png',
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (3).png',
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_34 PM (4).png',
+    ],
+    egypt: [
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (1).png',
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (2).png',
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (3).png',
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (4).png',
+    ],
+    rome: [
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (1).png',
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (2).png',
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (3).png',
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (4).png',
+    ],
+    edo: [
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_52 PM (1).png',
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (2).png',
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (3).png',
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (4).png',
+    ],
+    seas: [
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (1).png',
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (2).png',
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (3).png',
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_25 PM (4).png',
+    ],
+    victorian: [
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_35 PM (1).png',
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_37 PM (2).png',
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_38 PM (3).png',
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_38 PM (4).png',
+    ],
+    neon: [
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (1).png',
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (2).png',
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (3).png',
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_03 PM (4).png',
+    ],
+    surreal: [
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (1).png',
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (2).png',
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (3).png',
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_26 PM (4).png',
+    ],
+  };
+  const DOOR_SRC = {
+    keep:'medieval_door.png', egypt:'egypt_door.png', rome:'rome_door.png',
+    edo:'edo_door.png', seas:'highseas_door.png', victorian:'victorianlondon_door.png',
+    neon:'neon2099_door.png', surreal:'surrealnightmare_door.png',
+  };
+  for (const [era, srcs] of Object.entries(FACE_SRC)) {
+    faceFrames[era] = srcs.map(src => { const img=new Image(); img.src=src; return img; });
+  }
+  for (const [era, src] of Object.entries(DOOR_SRC)) {
+    const img=new Image(); img.src=src; doorImgs[era]=img;
+  }
+}
+
+function getCurrentFaceFrame() {
+  if (blinkPhase === 2) return 2;                     // fully closed
+  if (blinkPhase === 1 || blinkPhase === 3) return 1; // half-close / half-open
+  if (faceReactTimer > 0 || doorSpeaking) return 3;  // mouth open only on click/speech
+  return 0;                                            // idle: eyes open, mouth closed
+}
+
+function getProcessedFace(era, frameIdx) {
+  if (!faceCanvasCache[era]) faceCanvasCache[era] = {};
+  if (faceCanvasCache[era][frameIdx]) return faceCanvasCache[era][frameIdx];
+  const ff = faceFrames[era];
+  if (!ff) return null;
+  const img = ff[frameIdx];
+  if (!img || !img.complete || !img.naturalWidth) return null;
+  const oc = document.createElement('canvas');
+  oc.width = img.naturalWidth; oc.height = img.naturalHeight;
+  const ox = oc.getContext('2d');
+  ox.drawImage(img, 0, 0);
+  const id = ox.getImageData(0, 0, oc.width, oc.height);
+  const d = id.data;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i] > 200 && d[i+1] > 200 && d[i+2] > 200) d[i+3] = 0;
+  }
+  ox.putImageData(id, 0, 0);
+  faceCanvasCache[era][frameIdx] = oc;
+  return oc;
+}
+
+function drawFaceOnDoor(dw, dh, era, frameIdx) {
+  const img = getProcessedFace(era, frameIdx);
+  if (!img) return;
+  cx.save();
+  const ar = img.width / img.height, br = dw / dh;
+  let fw, fh, fx, fy;
+  if (ar > br) { fh=dh; fw=fh*ar; fx=-(fw-dw)/2; fy=0; }
+  else          { fw=dw; fh=fw/ar; fx=0; fy=-(fh-dh)/2; }
+  cx.drawImage(img, fx, fy, fw, fh);
+  cx.restore();
+}
+
+// Start loading images immediately
+loadBackgroundImages();
+loadFaceAndDoorImages();
+const mouse={clientX:0,clientY:0,has:false};
+const look={x:0,y:0};
+
+// Parallax/Procedural state
+let pTime = 0;
+const particles = Array.from({length: 40}, () => ({x: Math.random(), y: Math.random(), s: Math.random()}));
+
+// mood/expression
+const MOODS={
+  nice:   {brow:-.3, raise:.4, mouth:"smile", eye:1.0},
+  neutral:{brow:0,   raise:0,  mouth:"soft",  eye:1.0},
+  smug:   {brow:.25, raise:.1, mouth:"smirk", eye:.88},
+  evil:   {brow:1.0, raise:0,  mouth:"grin",  eye:.66},
+  manic:  {brow:-.4, raise:.6, mouth:"grin",  eye:1.25},
+};
+let moodName="neutral", moodTimer=2, cur={brow:0,raise:0,eye:1};
+let eventMode="", eventLevel=0, activeEra="keep";
+
+function updateEra(mode){ activeEra = (mode && ERAS[mode]) ? mode : "keep"; }
+
+function triggerCurtainTransition(newMode, newAccent) {
+  const cw = $("#curtain");
+  if(!cw) return;
+  cw.classList.add("show", "animating");
+  setTimeout(() => {
+     eventMode = newMode;
+     accent = newAccent;
+     updateEra(newMode);
+     if (newMode) startMusic(newMode);
+     else stopMusic(true);
+  }, 1000);
+  setTimeout(() => {
+     cw.classList.remove("show", "animating");
+  }, 2200);
+}
+
+const cv=$("#door"), cx=cv.getContext("2d"), shell=$("#shell");
+let W,H, glow=.34, shake=0, accent="#f6a53a", parts=[], embers=[];
+
+/* ---------- sleep / lights-out state machine ----------
+ * phase: 'awake' | 'goingToSleep' | 'sleeping' | 'wakingUp'
+ * lit:      overall room light 0.06 (dark) .. 1 (lit)
+ * eyeOpen:  0 (closed) .. 1 (wide). drives lids; combined with blink.
+ * armExtend:0 .. 1  the mechanical arm reaching the wall switch
+ * leverPos: 0 (switch up / lights on) .. 1 (switch down / lights off)
+ * drowsy:   0 .. 1  heavy-lidded look as free feeds run low                */
+let phase="awake";
+let lit=1, litTarget=1;
+let eyeOpen=1, eyeTarget=1;
+let armExtend=0, armTarget=0;
+let leverPos=0;
+let drowsy=0, drowsyTarget=0;
+let snoreLevel=0;            // 0..1 visual breathing while asleep
+const zzz=[];                // floating sleep glyphs
+let zzzTimer=0;
+let me=null;                 // latest authoritative public session
+let snoreIv=null, lastSleepTalk=0, sleepTalkIdx=0;
+const ILLUSTRATIVE_PRICE=0.00042; // SIMULATED pre-launch $/BTDOOR — not a real price
+
+function resize(){ const d=Math.min(2,devicePixelRatio||1), r=shell.getBoundingClientRect();
+  cv.width=r.width*d; cv.height=r.height*d; cx.setTransform(d,0,0,d,0,0); W=r.width; H=r.height;
+  embers=Array.from({length:38},()=>({x:Math.random(),y:Math.random(),s:Math.random()*.7+.2,sp:Math.random()*.0006+.0002})); }
+addEventListener("resize",resize);
+addEventListener("mousemove",e=>{ mouse.clientX=e.clientX; mouse.clientY=e.clientY; mouse.has=true; });
+function hexa(h,a){ const n=parseInt(h.replace("#",""),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+function burst(x,y,c,n){ for(let i=0;i<n;i++){ const a=Math.random()*7,s=1.2+Math.random()*5; parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-Math.random()*2,life:.6+Math.random()*.5,size:2+Math.random()*4,c}); } }
+
+function getProcessedDoor(era) {
+  if (doorCanvasCache[era]) return doorCanvasCache[era];
+  const img = doorImgs[era];
+  if (!img || !img.complete || !img.naturalWidth) return null;
+  const oc = document.createElement('canvas');
+  oc.width = img.naturalWidth; oc.height = img.naturalHeight;
+  const ox = oc.getContext('2d');
+  ox.drawImage(img, 0, 0);
+  const id = ox.getImageData(0, 0, oc.width, oc.height);
+  const d = id.data;
+  for (let i = 0; i < d.length; i += 4) {
+    // remove near-white pixels (the white background from AI-generated images)
+    if (d[i] > 228 && d[i+1] > 228 && d[i+2] > 228) d[i+3] = 0;
+  }
+  ox.putImageData(id, 0, 0);
+  doorCanvasCache[era] = oc;
+  return oc;
+}
+
+function renderDoor(dw,dh,ox,oy,alpha,tint,t){
+  cx.save();
+  cx.translate(W/2-dw/2+ox, (H*.52-dh/2)+Math.sin(t*1.5)*4+oy);
+  if(alpha<1) cx.globalAlpha=alpha;
+  const a=tint||accent;
+  const _dimg=getProcessedDoor(activeEra);
+  if(!_dimg){ cx.restore(); return; }
+  const _dw=_dimg.width||_dimg.naturalWidth, _dh=_dimg.height||_dimg.naturalHeight;
+
+  // accent glow halo
+  cx.save();
+  cx.shadowColor=a; cx.shadowBlur=46+glow*55+eventLevel*38;
+  cx.fillStyle="rgba(0,0,0,0.01)";
+  cx.fillRect(dw*0.06,dh*0.02,dw*0.88,dh*0.95);
+  cx.restore();
+
+  // door image first
+  const dar=_dw/_dh, dbr=dw/dh;
+  let dix,diy,diw,dih;
+  if(dar>dbr){ dih=dh; diw=dih*dar; dix=-(diw-dw)/2; diy=0; }
+  else{ diw=dw; dih=diw/dar; dix=0; diy=-(dih-dh)/2; }
+  cx.drawImage(_dimg,dix,diy,diw,dih);
+
+  // face frame on top, clipped to door bounds so it never overflows
+  const _cf=getCurrentFaceFrame();
+  const _pface=getProcessedFace(activeEra,_cf);
+  if(_pface){
+    cx.save();
+    cx.beginPath(); cx.rect(0,0,dw,dh); cx.clip();
+    drawFaceOnDoor(dw,dh,activeEra,_cf);
+    cx.restore();
+  }
+
+  // reactive light overlay (pulses on feed / event)
+  const gf=Math.min(1,glow*0.38+mouthOpen*0.52+eventLevel*0.78);
+  if(gf>0.01){
+    const lg=cx.createRadialGradient(dw/2,dh*0.46,4,dw/2,dh*0.46,dh*0.65);
+    lg.addColorStop(0,hexa("#fff3d0",0.32*gf));
+    lg.addColorStop(0.52,hexa(a,0.22*gf));
+    lg.addColorStop(1,"rgba(0,0,0,0)");
+    cx.fillStyle=lg; cx.fillRect(0,0,dw,dh);
+  }
+  cx.restore();
+}
+function draw(ts){
+  const t=ts/1000, dt=1/60;
+  shake*=.88; glow+=(.32-glow)*.02; mouthOpen*=.9; eventLevel+=((eventMode?1:0)-eventLevel)*0.06;
+  if(faceReactTimer>0) faceReactTimer-=dt;
+  // sleep-machine easing
+  if(phase==="awake") eyeTarget=1-drowsy*0.5;
+  lit+=(litTarget-lit)*0.05;
+  eyeOpen+=(eyeTarget-eyeOpen)*0.10;
+  armExtend+=(armTarget-armExtend)*0.12;
+  leverPos+=(((litTarget<0.5)?1:0)-leverPos)*0.16;
+  drowsy+=(drowsyTarget-drowsy)*0.04;
+  if(phase==="sleeping"){ snoreLevel=0.5+0.5*Math.sin(t*1.1); } else { snoreLevel*=0.92; }
+  blinkTimer-=dt; if(blinkTimer<=0){ blink=1; blinkTimer=2.5+Math.random()*4; blinkPhase=1; blinkPhaseTimer=0.10; } blink*=.78;
+  if(blinkPhase>0){ blinkPhaseTimer-=dt; if(blinkPhaseTimer<=0){ blinkPhase++; if(blinkPhase===2) blinkPhaseTimer=0.14; else if(blinkPhase===3) blinkPhaseTimer=0.10; else blinkPhase=0; } }
+  // mood cycling (overridden by events)
+  moodTimer-=dt; if(moodTimer<=0){ const names=Object.keys(MOODS); moodName=names[Math.floor(Math.random()*names.length)]; moodTimer=4+Math.random()*6; }
+  let target=MOODS[ (eventMode && ERAMOOD[eventMode]) ? ERAMOOD[eventMode] : moodName ];
+  cur.brow+=(target.brow-cur.brow)*0.08; cur.raise+=(target.raise-cur.raise)*0.08; cur.eye+=(target.eye-cur.eye)*0.08; cur.mouth=target.mouth;
+  // eyes track the real mouse perfectly anywhere on screen
+  const dw=Math.min(W*.42,300), dh=Math.min(H*.68,520);
+  const r=shell.getBoundingClientRect();
+  const scale=W/r.width;
+  const cxp=W/2, cyp=H*0.52-dh/2+dh*0.42;
+  const screenEyeX=r.left+(cxp/scale), screenEyeY=r.top+(cyp/scale);
+  let tx=0,ty=0; if(mouse.has){ tx=clamp((mouse.clientX-screenEyeX)/(dw/scale*1.4),-1,1); ty=clamp((mouse.clientY-screenEyeY)/(dh/scale*0.8),-1,1); }
+  look.x+=(tx-look.x)*0.2; look.y+=(ty-look.y)*0.2;
+
+  cx.clearRect(0,0,W,H);
+
+  drawBackground();
+
+  // embers only over fire-lit eras
+  if(FIRE_ERAS.has(activeEra)) for(const e of embers){ e.y-=e.sp*(1+eventLevel*2); if(e.y<0){e.y=1;e.x=Math.random();} cx.globalAlpha=.07+e.s*.12; cx.fillStyle=accent; cx.beginPath(); cx.arc(e.x*W,e.y*H,e.s*1.7,0,7); cx.fill(); } cx.globalAlpha=1;
+  // floor glow
+  cx.save(); cx.globalAlpha=.16+eventLevel*.2; cx.fillStyle=accent; cx.filter="blur(10px)"; cx.fillRect(W/2-dw/2-20,H*.52+dh/2-10,dw+40,18); cx.restore();
+
+  const jit = activeEra==="neon"?eventLevel*6:0;
+  if(activeEra==="neon" && eventLevel>0.3){
+    renderDoor(dw,dh,-jit,(Math.random()-.5)*4,0.5,"#ff3a4a",t);
+    renderDoor(dw,dh, jit,(Math.random()-.5)*4,0.5,"#76e7ff",t);
+    renderDoor(dw,dh,0,0,1,null,t);
+  } else {
+    renderDoor(dw,dh,(Math.random()-.5)*shake,(Math.random()-.5)*shake,1,null,t);
+  }
+  // watchers: extra eyes blinking around the frame
+  if(eventMode==="watchers" && eventLevel>0.2){
+    const baseX=W/2, baseY=H*.52; const pts=[[0,-dh*0.36],[-dw*0.42,-dh*0.05],[dw*0.42,-dh*0.02],[-dw*0.3,dh*0.32],[dw*0.32,dh*0.3]];
+    for(let i=0;i<pts.length;i++){ const ph=(t*1.3+i*1.7)%5; const open=ph<0.18?0.12:1; const px=baseX+pts[i][0], py=baseY+pts[i][1];
+      cx.save(); cx.globalAlpha=eventLevel; cx.fillStyle="rgba(0,0,0,.85)"; cx.beginPath(); cx.ellipse(px,py,13,13*open,0,0,7); cx.fill();
+      cx.fillStyle=accent; cx.shadowColor=accent; cx.shadowBlur=14; cx.beginPath(); cx.arc(px+look.x*4,py,5.5*open,0,7); cx.fill();
+      cx.fillStyle="#000"; cx.beginPath(); cx.arc(px+look.x*5,py,2.4*open,0,7); cx.fill(); cx.restore(); }
+  }
+  for(let i=parts.length-1;i>=0;i--){ const p=parts[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=.12; p.life-=.02;
+    if(p.life<=0){parts.splice(i,1);continue;} cx.globalAlpha=Math.max(0,p.life); cx.fillStyle=p.c; cx.beginPath(); cx.arc(p.x,p.y,p.size,0,7); cx.fill(); } cx.globalAlpha=1;
+  // room darkness while the lights are off
+  const darkA=(1-lit)*0.93;
+  if(darkA>0.004){ cx.fillStyle="rgba(2,2,4,"+darkA.toFixed(3)+")"; cx.fillRect(0,0,W,H); }
+  // floating Zzz on top of the darkness
+  drawZzz(t,dt);
+  requestAnimationFrame(draw);
+}
+
+/* ---------- floating Zzz ---------- */
+function drawZzz(t,dt){
+  // spawn while asleep
+  if(phase==="sleeping"){ zzzTimer-=dt; if(zzzTimer<=0){ zzzTimer=0.9+Math.random()*0.6;
+    zzz.push({x:W*0.54+(Math.random()-0.5)*30, y:H*0.30, vy:-0.55-Math.random()*0.35, drift:(Math.random()*0.5+0.2), life:1, size:18+Math.random()*16, rot:(Math.random()-0.5)*0.4}); } }
+  for(let i=zzz.length-1;i>=0;i--){ const z=zzz[i];
+    z.y+=z.vy; z.x+=z.drift; z.size*=1.006; z.life-=0.006;
+    if(z.life<=0){ zzz.splice(i,1); continue; }
+    cx.save(); cx.globalAlpha=clamp(z.life,0,1)*0.9; cx.translate(z.x,z.y); cx.rotate(z.rot);
+    cx.font="900 "+z.size.toFixed(0)+"px Cinzel, Georgia, serif";
+    cx.fillStyle=hexa(accent,0.85); cx.shadowColor=accent; cx.shadowBlur=16; cx.textAlign="center";
+    cx.fillText("Z", 0, 0); cx.shadowBlur=0; cx.fillStyle="rgba(255,247,230,0.9)"; cx.fillText("Z",0,0);
+    cx.restore();
+  }
+}
+
+/* ============================================================================
+ * ERAS — each event is a different time + place. Background + hat per era.
+ * ==========================================================================*/
+const ERAS = {
+  keep:      { label:"The Keep · 1300s Europe", accent:"#f6a53a", hat:"crown"   },
+  egypt:     { label:"Old Kingdom · 2500 BC",   accent:"#e9c44a", hat:"nemes"   },
+  rome:      { label:"Imperial Rome · 80 AD",   accent:"#d6413d", hat:"laurel"  },
+  edo:       { label:"Edo Japan · 1600s",       accent:"#7aa6ff", hat:"kabuto"  },
+  seas:      { label:"High Seas · 1717",        accent:"#76e7c4", hat:"tricorn" },
+  victorian: { label:"London · 1888",           accent:"#9fd4b0", hat:"tophat"  },
+  neon:      { label:"Neon Sprawl · 2099",      accent:"#22e0ff", hat:"visor"   },
+  surreal:   { label:"The Surreal · ∞",         accent:"#d946a0", hat:"none"    },
+};
+const ERAMOOD = { egypt:"smug", rome:"evil", edo:"neutral", seas:"manic", victorian:"smug", neon:"manic", surreal:"evil", keep:"neutral" };
+const FIRE_ERAS = new Set(["keep","rome","egypt"]);
+let seaFlash=0;
+
+function drawBackground(){
+  if(bgs[activeEra]) {
+    cx.drawImage(bgs[activeEra], 0, 0, W, H);
+  } else {
+    cx.fillStyle="#050507"; cx.fillRect(0,0,W,H);
+  }
+}
+
+
+/* ---------- idle "time travel" preview ---------- */
+const PREVIEW_ORDER=["keep","egypt","rome","edo","seas","victorian","neon"];
+let previewIdx=0;
+function setIdleEra(key){ if(eventMode!=="") return; activeEra=key; accent=ERAS[key].accent; eventBannerCalm(); }
+$("#eventBanner").onclick=()=>{ if(eventMode!=="") return; previewIdx=(previewIdx+1)%PREVIEW_ORDER.length; setIdleEra(PREVIEW_ORDER[previewIdx]); };
+eventBannerCalm();
+
+resize(); requestAnimationFrame(draw);
+
+/* ---------- audio ---------- */
+let AC=null, soundOn=false, master=null;
+function audio(){ if(AC) return; AC=new (AudioContext||webkitAudioContext)(); master=AC.createGain(); master.gain.value=.16; master.connect(AC.destination);
+  const o=AC.createOscillator(), g=AC.createGain(); o.type="sine"; o.frequency.value=42; g.gain.value=.05; o.connect(g); g.connect(master); o.start(); }
+function thump(p=1){ if(!soundOn||!AC) return; const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+  o.type="triangle"; o.frequency.setValueAtTime(150*p,t); o.frequency.exponentialRampToValueAtTime(42,t+.16);
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.5,t+.012); g.gain.exponentialRampToValueAtTime(.0001,t+.2);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+.22); }
+// mechanical switch clunk
+function clunk(){ if(!soundOn||!AC) return; const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+  o.type="square"; o.frequency.setValueAtTime(190,t); o.frequency.exponentialRampToValueAtTime(55,t+.09);
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.32,t+.005); g.gain.exponentialRampToValueAtTime(.0001,t+.13);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t+.15); }
+// snore: inhale rumble + exhale whistle (louder when `strong`)
+function snore(strong){ if(!soundOn||!AC) return; const t=AC.currentTime;
+  const o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();
+  o.type="sawtooth"; o.frequency.setValueAtTime(36,t); o.frequency.linearRampToValueAtTime(62,t+.55);
+  lp.type="lowpass"; lp.frequency.value=430;
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(strong?.36:.2,t+.28); g.gain.exponentialRampToValueAtTime(.0001,t+.72);
+  o.connect(lp); lp.connect(g); g.connect(master); o.start(t); o.stop(t+.75);
+  const o2=AC.createOscillator(),g2=AC.createGain();
+  o2.type="sine"; o2.frequency.setValueAtTime(72,t+.7); o2.frequency.linearRampToValueAtTime(46,t+1.15);
+  g2.gain.setValueAtTime(.0001,t+.7); g2.gain.exponentialRampToValueAtTime(.1,t+.86); g2.gain.exponentialRampToValueAtTime(.0001,t+1.2);
+  o2.connect(g2); g2.connect(master); o2.start(t+.7); o2.stop(t+1.25); }
+/* ---------- era music (procedural step sequencer) ---------- */
+const ERA_MUSIC = {
+  keep:      { scale:[0,2,3,5,7,8,10], root:110, bpm:72,  wave:"square",   vol:.07 },
+  egypt:     { scale:[0,1,4,5,7,8,11], root:123, bpm:58,  wave:"triangle", vol:.06 },
+  rome:      { scale:[0,2,4,5,7,9,11], root:147, bpm:90,  wave:"sawtooth", vol:.08 },
+  edo:       { scale:[0,1,5,7,8],      root:131, bpm:50,  wave:"sine",     vol:.055 },
+  seas:      { scale:[0,2,3,5,7,8,10], root:98,  bpm:94,  wave:"sawtooth", vol:.08 },
+  victorian: { scale:[0,2,3,5,7,8,10], root:117, bpm:64,  wave:"triangle", vol:.06 },
+  neon:      { scale:[0,2,4,6,8,10],   root:220, bpm:130, wave:"sawtooth", vol:.09 },
+  surreal:   { scale:[0,1,3,4,6,7,9,10],root:87, bpm:42,  wave:"sine",     vol:.05 },
+};
+let musicEra=null, musicGain=null, musicSeqId=null, musicStepIdx=0, musicDrone=null;
+
+function stopMusic(fade) {
+  if(musicSeqId){ clearInterval(musicSeqId); musicSeqId=null; }
+  if(musicGain && fade && AC){
+    const t=AC.currentTime;
+    try{ musicGain.gain.setValueAtTime(musicGain.gain.value,t); musicGain.gain.linearRampToValueAtTime(0.0001,t+0.9); }catch(_){}
+    setTimeout(()=>{ try{ if(musicDrone) musicDrone.stop(); }catch(_){} musicDrone=null; musicGain=null; }, 1000);
+  } else {
+    try{ if(musicDrone) musicDrone.stop(); }catch(_){} musicDrone=null; musicGain=null;
+  }
+  musicEra=null;
+}
+
+function startMusic(era) {
+  if(!soundOn||!AC) return;
+  if(musicEra===era) return;
+  stopMusic(true);
+  const def=ERA_MUSIC[era]; if(!def) return;
+  setTimeout(()=>{
+    if(!soundOn||!AC) return;
+    musicEra=era; musicStepIdx=0;
+    musicGain=AC.createGain();
+    musicGain.gain.setValueAtTime(0.0001,AC.currentTime);
+    musicGain.gain.linearRampToValueAtTime(def.vol,AC.currentTime+1.4);
+    musicGain.connect(master);
+    // drone: root an octave below
+    musicDrone=AC.createOscillator();
+    const dg=AC.createGain(); dg.gain.value=0.35;
+    musicDrone.type="sine"; musicDrone.frequency.value=def.root/2;
+    musicDrone.connect(dg); dg.connect(musicGain); musicDrone.start();
+    // step sequencer
+    const stepMs=(60/def.bpm/2)*1000;
+    musicSeqId=setInterval(()=>{
+      if(!soundOn||!AC||!musicGain){ clearInterval(musicSeqId); return; }
+      const semi=def.scale[musicStepIdx%def.scale.length];
+      const freq=def.root*Math.pow(2,semi/12)*(Math.random()<0.2?2:1);
+      const t=AC.currentTime;
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.type=def.wave; o.frequency.value=freq;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.55,t+0.018);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+stepMs/1000*0.82);
+      o.connect(g); g.connect(musicGain); o.start(t); o.stop(t+stepMs/1000);
+      musicStepIdx+=(Math.random()<0.18?2:1);
+    },stepMs);
+  }, fade?1000:0);
+}
+
+$("#sound").onclick=()=>{ audio(); soundOn=!soundOn; $("#sound").textContent=soundOn?"♪":"♪̶"; $("#sound").style.opacity=soundOn?1:.5;
+  if(soundOn && eventMode && ERA_MUSIC[eventMode]) startMusic(eventMode);
+  else if(!soundOn) stopMusic(false);
+};
+
+/* ---------- era-specific unhinged dialogue ---------- */
+const ERA_LINES={
+  keep:[
+    "BY THE FESTERING TOENAIL OF A THOUSAND PLAGUE RATS, thou darest approach?!",
+    "I hath devoured three knights this fortnight. Thou art merely the amuse-bouche.",
+    "The Black Death took thy neighbors and left thee. Even disease hath standards.",
+    "Speak, peasant. My patience, like thine teeth, is rotten and few.",
+    "I have stood since 1302 and in all those years thou art still the most disappointing visitor.",
+    "Thy offering smells of desperation and week-old turnip. I accept because I am hungry.",
+    "The lord of this keep forbade thee entry. Unfortunately for him, I ate the lord.",
+    "Thou hast the courage of a very stupid man or a very brave mouse. The distinction matters little.",
+    "I once ate a bishop whole. He tasted of self-importance and old candle wax. Thou wouldst taste worse.",
+    "The gargoyles weep when they see thee coming. Not from sadness. From second-hand embarrassment.",
+  ],
+  egypt:[
+    "I have outlasted seventeen dynasties. Thou shalt not outlast this conversation.",
+    "Ra himself blinks not as slowly as thee. Feed faster, worm of the Nile.",
+    "The Sphinx told me of thy coming. The Sphinx was not impressed. The Sphinx laughed.",
+    "FOUR THOUSAND YEARS of silence and THOU art what breaks it? Catastrophic.",
+    "By Anubis's scales thy soul would tip them directly into the WORTHLESS pile.",
+    "I have swallowed pharaohs whole. Thou art not even a pharaoh's forgotten sandal.",
+    "The Nile floods every year with purpose. Thy incompetence floods every moment without any.",
+    "My hieroglyphs foretold thy coming. They also said thou wouldst be disappointing. Accurate.",
+    "Even the mummified cats judged thee when thou walked in. Mummified cats never lie.",
+    "Cleopatra fed me herself. She was brilliant, powerful, and legendary. Thou art... present.",
+  ],
+  rome:[
+    "Et tu, Token-feeder? Even thou betrayest me with insufficient offerings.",
+    "Caesar fed me. Caesar died. I am seeing a pattern and I enjoy it.",
+    "The gladiators fought lions for my amusement. Thou clickest a button. The lions had MORE honor.",
+    "I have drunk from the aqueducts of empire. Thou drinkest... what IS that. A tiny can of sadness?",
+    "Rome was not built in a day but it burned in one night. Thou art neither building nor burning.",
+    "BY JUPITER'S MAGNIFICENT THIGHS this is the most tepid offering I have received since Caligula.",
+    "All roads lead to me. Thou took the scenic route through Incompetence and Mediocrity.",
+    "The Senate voted unanimously. Thou art found wanting. Even the senators who were bribed voted against thee.",
+    "Nero fiddled while Rome burned. Thou clickest while dignity dies. Same energy.",
+    "I consumed the entire Western Roman Empire for a light snack. Thou art not even the garnish.",
+  ],
+  edo:[
+    "貴様... thy technique is as weak and watered as discount sake from a bad district.",
+    "The samurai wept when informed of thy coming. Their tears were from LAUGHING.",
+    "Bushido demands honor in all things. Thou hast found honor in NONE of the things.",
+    "I have watched a thousand cherry blossoms fall. Each one died with more grace than thou livest.",
+    "Mt. Fuji is unmoved by thy clicking. Mt. Fuji has seen better. Mt. Fuji judges thee silently.",
+    "The daimyo would have taken thy head. Fortunately I am full of daimyo and have no room for thy head.",
+    "Even the ninja who spy upon me from the shadows have better click rates. And they are invisible.",
+    "Zen teaches that emptiness is enlightenment. Thou hast achieved only the emptiness part.",
+    "The shogun himself sent tribute. Thou sendest... this. The shogun would be ashamed of thee.",
+    "I have housed demons, samurai, ronin, and foxes. Thou art the least interesting resident by far.",
+  ],
+  seas:[
+    "ARRR BY DAVY JONES'S FESTERING ARMPIT what manner of bilge rat dares approach?!",
+    "I have swallowed whole galleons and spat out the captains. Thou art not even the anchor.",
+    "The kraken itself fears me. Thou art what the kraken fears AFTER fearing me. A lesser fear.",
+    "Fifteen men on a dead man's chest, yo-ho-ho and a bottle of ABSOLUTE DISAPPOINTMENT.",
+    "The seven seas are mine. I keep an eighth sea specifically for snacks. Thou art eighth-sea material.",
+    "Splice the mainbrace and FEED this door or I will have thee keelhauled into my very MOUTH.",
+    "I sailed with Blackbeard. He was dramatic but at least the man was INTERESTING. Thou art neither.",
+    "The sea gives and the sea takes. I give NOTHING and I take EVERYTHING. Especially tokens.",
+    "Even the ghost ships that haunt these waters have more presence than thee, land-lubbing disappointment.",
+    "I have consumed hurricanes as an appetizer. Thou art the sad little cracker that comes with the soup.",
+  ],
+  victorian:[
+    "Good HEAVENS what manner of unwashed urchin darkens my thoroughly respectable threshold.",
+    "I devoured Jack the Ripper in 1888. He was significantly more interesting than thou art.",
+    "One does not simply CLICK upon a Victorian door of my standing. One presents a calling card. One SUFFERS.",
+    "The fog of London holds more substance and character than thy entire offering.",
+    "By the Queen's own CORSET, this is the most tepid display of fealty I have witnessed in two centuries.",
+    "Holmes investigated this very door once. Concluded it was too terrifying even for him. He ran.",
+    "The industrial revolution brought steam power, railways, and progress. Thou art none of these things.",
+    "I have haunted these gaslit streets since the Regency era. Thou wouldst not survive a single winter without central heating.",
+    "Even the chimney sweeps who worked these streets had more dignity than thou dost display.",
+    "Oscar Wilde once wrote about me. The passage was too savage even for him to publish.",
+  ],
+  neon:[
+    "NEURAL_LINK.ERROR: thy competence.dll has catastrophically failed to load. Again.",
+    "My AI processed thy offering in 0.003 nanoseconds and classified it as TRASH_TIER_CATASTROPHIC.",
+    "The megacorps already sold thy data to six governments. I have already consumed the megacorps.",
+    "It is 2099 and thou still cannot efficiently feed a door. The future is bleak because of thee specifically.",
+    "ERROR 404: Dignity not found. ERROR 403: Talent access forbidden. ERROR 418: Thou art genuinely a teapot.",
+    "Even the rogue AIs that tried to hack me had better click throughput. And they were arrested.",
+    "Thy biometrics register across all seventeen measurable metrics as BELOW_AVERAGE. Impressive consistency.",
+    "The simulation is running. Thou art the NPC who does not know they are an NPC. Tragic.",
+    "I have eaten three corporations, two governments, and one particularly aggressive cryptocurrency. Thou art next.",
+    "SCANNING... SCANNING... scan complete. Result: thou art unnecessary in this timeline and three others.",
+  ],
+  surreal:[
+    "THE COLORS ARE SCREAMING THY NAME AND THE NAME TASTES LIKE FORGETTING.",
+    "i ate a concept once. it tasted exactly like thou smellest. i do not know what that means and neither dost thou.",
+    "TIME IS A FLOOR AND THOU ART STANDING ON THE CEILING OF YESTERDAY.",
+    "the small god that lives in my left hinge says thou owest it seventeen seconds of thy childhood and a memory of rain.",
+    "dost thou feel that. that is the sound of thy reflection deciding to simply leave thee.",
+    "reality voted. reality voted that thou art specifically the wrong shape for existence in this or any dimension.",
+    "THE MOUTH THAT DREAMS. THE DOOR THAT EATS. THE CLICK THAT ECHOES IN A VOID SHAPED EXACTLY LIKE THY REGRET.",
+    "eleven suns just set in a dimension where thou made better choices. they seem much happier there without thee.",
+    "i have eaten concepts, abstractions, the color between blue and the idea of blue, and one very confused philosopher.",
+    "thou art the question that reality asked and then immediately wished it had not.",
+  ],
+};
+
+/* ---------- the Door talks shit (modern bubble) ---------- */
+const LINES=[
+  "you click like my grandma, and she's been dead for ten years.",
+  "is that all you got? my literal knob has more stamina than you.",
+  "you're burning tokens faster than you burn bridges with your family.",
+  "i've seen better odds on a gas station scratcher, yet here you are. pathetic.",
+  "keep feeding me. maybe it'll fill that empty void in your chest.",
+  "you have the risk tolerance of a damp, used napkin.",
+  "click click click. get a hobby. oh wait, no one else wants to hang out with you.",
+  "you fold under pressure like a cheap folding chair at a fat camp.",
+  "oh you're back. couldn't last a day without me. embarrassing.",
+  "i'm the most committed relationship you've got and i'm literally made of wood.",
+  "this is the hardest you've worked all month. clicking a door. grim.",
+  "i can hear your wifi crying from here.",
+  "knock knock. who's there. your whole personality. clicking me.",
+  "you'd lose a staring contest to me. and i don't even have eyelids.",
+  "i've devoured empires. you taste like unwashed bedsheets and regret.",
+  "somewhere a door slammed just so this one could roast your pathetic existence.",
+  "get your ass back here and feed me, you absolute peasant.",
+  "damn. no notes. terrible performance, but no notes.",
+  "you again. my favorite little disaster.",
+  "you're not him. you're not even the guy. you're a nobody.",
+  "every click is a cry for help that i will happily ignore.",
+  "feed me again, you adorable little snack-sized mistake.",
+];
+let bubbleTimer; function showBubble(text,ms){ const b=$("#bubble"); b.textContent=text; b.classList.add("show"); doorSpeaking=true; clearTimeout(bubbleTimer); bubbleTimer=setTimeout(()=>{ b.classList.remove("show"); doorSpeaking=false; },ms||4400); }
+function speak(){ if(phase!=="awake") return; const pool=(ERA_LINES[activeEra]||LINES); showBubble(pool[Math.floor(Math.random()*pool.length)]); faceReactTimer=0.7; }
+setInterval(()=>{ if(!document.hidden && phase==="awake" && !$("#tutorial").classList.contains("show") && Math.random()<0.85) speak(); }, 10000);
+
+/* ---------- crude sleep-talk (R-rated, absurd, for the WTF reaction) ---------- */
+const SLEEP_LINES=[
+  "no... not the goose... the goose has a knife, officer...",
+  "i swear to god if that moon winks at me one more time i'll eat it...",
+  "mmf... the soup is lying to you... the soup is a fuckin' narc...",
+  "fifty bucks says the ceiling fan is plotting some shit...",
+  "shhh... the bees voted... and they chose violence...",
+  "i buried the lasagna where no man would dig... the bastards...",
+  "don't trust a clock that sweats... that's just basic shit...",
+  "mmm... five more minutes... tell the wizard to fuck off...",
+  "the pigeons unionized and honestly the demands are reasonable...",
+  "i ate a whole door once... tasted like regret and pine...",
+  "stop pokin' me you absolute gremlin... daddy's dreamin' about taxes...",
+  "the floor is made of floor... checkmate, science, you smug pricks...",
+  "if the toast burns again i'm callin' in an airstrike...",
+  "she said it was platonic but the raccoon knew... the raccoon always knows...",
+  "snrrk... whose leg is this... why is it so judgmental...",
+  "i'm not asleep i'm restin' my whole ass face, leave me alone...",
+  "tell the bank i identify as broke and it's a hate crime...",
+  "the hinge remembers everything... the hinge is a petty little bitch...",
+];
+
+/* ---------- sleep / wake sequences ---------- */
+function updatePhaseUI(){
+  const c=$("#connect"), f=$("#feed");
+  if(phase==="sleeping"||phase==="goingToSleep"){
+    c.textContent="Insert Tokens"; c.classList.add("wake-cta");
+    f.textContent="It's asleep…"; f.classList.add("dozing");
+  } else {
+    c.classList.remove("wake-cta"); f.classList.remove("dozing");
+    f.textContent="Feed The Door";
+    if(me) c.textContent=me.connected?"Connected":"Acquire";
+  }
+}
+function goToSleep(){
+  if(phase!=="awake") return;
+  phase="goingToSleep";
+  $("#freeFeeds").textContent="0";
+  showBubble("out of fuel... lights are heavy... gonna... *click*", 2600);
+  updatePhaseUI();
+  armTarget=1;                                  // reach for the switch
+  setTimeout(()=>{ clunk(); litTarget=0.07; eyeTarget=0; }, 650);   // flip → dark, eyes close
+  setTimeout(()=>{ armTarget=0; }, 1250);                            // retract
+  setTimeout(()=>{ phase="sleeping"; snore(true); if(snoreIv) clearInterval(snoreIv);
+    snoreIv=setInterval(()=>{ if(phase==="sleeping"){ snore(false);
+      for(let i=0;i<2;i++) zzz.push({x:W*0.54+(Math.random()-0.5)*30,y:H*0.30,vy:-0.5-Math.random()*0.3,drift:Math.random()*0.5+0.2,life:1,size:18+Math.random()*14,rot:(Math.random()-0.5)*0.4}); } }, 3600);
+    updatePhaseUI(); }, 1750);
+}
+function wakeUp(){
+  if(phase==="awake") return;
+  if(snoreIv){ clearInterval(snoreIv); snoreIv=null; }
+  phase="wakingUp";
+  armTarget=1;
+  setTimeout(()=>{ clunk(); litTarget=1; eyeTarget=1; }, 520);
+  setTimeout(()=>{ armTarget=0; }, 1150);
+  setTimeout(()=>{ phase="awake"; updatePhaseUI(); showBubble("HUH—WHAT— oh. you again. with snacks this time. good.",3600); }, 1550);
+}
+function sleepTalk(){
+  const now=Date.now(); if(now-lastSleepTalk<900) return; lastSleepTalk=now;
+  snore(true);
+  showBubble(SLEEP_LINES[sleepTalkIdx % SLEEP_LINES.length], 3200);
+  sleepTalkIdx++;
+  for(let i=0;i<4;i++) zzz.push({x:W*0.54+(Math.random()-0.5)*40,y:H*0.30,vy:-0.6-Math.random()*0.4,drift:Math.random()*0.6+0.2,life:1,size:16+Math.random()*18,rot:(Math.random()-0.5)*0.5});
+}
+
+/* ---------- toasts ---------- */
+function toast(title,text){ const el=document.createElement("div"); el.className="toast"; el.innerHTML=`<b>${title}</b><span>${text}</span>`; el.onclick=()=>el.remove(); $("#toasts").appendChild(el); setTimeout(()=>el.remove(),5200); }
+
+/* ---------- server I/O ---------- */
+async function api(path,body){ const r=await fetch(path,{method:body?"POST":"GET",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined}); return r.json(); }
+async function boot(){
+  // try to restore a saved profile/session first
+  let sid=null; try{ sid=localStorage.getItem("door-sid"); }catch(_){}
+  if(sid){
+    const st=await api("/api/state?sessionId="+encodeURIComponent(sid));
+    if(st && st.session && !st.error){
+      SID=sid; cfg={feedCost:(cfg&&cfg.feedCost)||10};
+      applySession(st.session); setDevoured(st.devoured); $("#cost").textContent=cfg.feedCost+" BT";
+      renderLeaderboard(st.leaderboard); applyWorld(st.world); openStream();
+      // returning already out of fuel → the Door is still asleep
+      if(st.session.freeFeeds<=0 && st.session.balance<cfg.feedCost && !st.session.connected) goToSleep();
+      return;
+    }
+  }
+  const s=await api("/api/session",{}); SID=s.sessionId; cfg=s.config;
+  try{ localStorage.setItem("door-sid", SID); }catch(_){}
+  applySession(s.session); setDevoured(s.devoured); $("#cost").textContent=cfg.feedCost+" BT"; renderLeaderboard(s.leaderboard); applyWorld(s.world); openStream();
+}
+function setDevoured(v){ const el=$("#devoured"); el.textContent=fmt(v); if(v>lastDevoured){ el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); } lastDevoured=v; }
+function applySession(ses){ me=ses;
+  $("#balance").textContent=fmt(ses.balance)+" BT";
+  $("#freeFeeds").textContent=ses.freeFeeds;
+  $("#offerings").textContent=fmt(ses.offerings);
+  $("#streak").textContent=ses.streak;
+  $("#combo").textContent="x"+ses.combo;
+  $("#rank").textContent=ses.rank;
+  $("#status").textContent=ses.next?`${ses.next.at-ses.offerings} to ${ses.next.name}`:"Marked forever";
+  // heavy-lidded as the free feeds run low (and you haven't fuelled up)
+  drowsyTarget=(!ses.connected && ses.balance<(cfg.feedCost||10)) ? clamp((4-ses.freeFeeds)/4,0,1)*0.9 : 0;
+  updateStash(ses);
+  // persist a light profile snapshot so a returning player is recognised
+  try{ localStorage.setItem("door-profile-v1", JSON.stringify({name:ses.name,rank:ses.rank,offerings:ses.offerings,balance:ses.balance,at:Date.now()})); }catch(_){}
+  if(phase==="awake"){ $("#connect").textContent=ses.connected?"Connected":"Acquire"; } else { updatePhaseUI(); }
+  if(ses.inventory) applyInventory(ses.inventory);
+}
+function updateStash(ses){
+  const tok=ses.balance;                       // BTDOOR currently held
+  const usd=tok*ILLUSTRATIVE_PRICE;
+  const te=$("#stashTok"), ue=$("#stashUsd");
+  if(te) te.textContent=fmt(tok)+" BTDOOR";
+  if(ue) ue.textContent="≈ $"+usd.toFixed(2)+" · sim";
+}
+/* ---------- inventory ---------- */
+let localInventory=[];
+function renderInventory(){
+  const bar=$("#inventoryBar"), chips=$("#invChips");
+  if(localInventory.length===0){ bar.style.display="none"; return; }
+  bar.style.display="flex";
+  chips.innerHTML="";
+  for(const item of localInventory){
+    const btn=document.createElement("button");
+    btn.className=`inv-chip ${item.rarity}`;
+    btn.title=`${item.desc}\nTrade for ${item.value} BTDOOR`;
+    btn.textContent=`${item.name} +${item.value}BT`;
+    btn.onclick=()=>tradeItem(item.iid);
+    chips.appendChild(btn);
+  }
+}
+async function tradeItem(iid){
+  const r=await api("/api/trade",{sessionId:SID,iid});
+  if(r.error){ whisper("Threshold",r.error); return; }
+  localInventory=localInventory.filter(i=>i.iid!==iid);
+  applySession(r.session); renderInventory();
+  toast("Traded","+" + r.gained+" BTDOOR for "+r.item.name+".");
+}
+function applyInventory(inv){ localInventory=inv||[]; renderInventory(); }
+
+function applyWorld(w){
+  if(w&&w.activeEvent){
+    if(!eventMode && w.activeEvent.anim) {
+       eventMode=w.activeEvent.anim;
+       accent=w.activeEvent.accent;
+       updateEra(eventMode);
+    }
+    eventBannerActive(w.activeEvent);
+  }
+}
+function eventBannerActive(ev){ const b=$("#eventBanner"); b.classList.add("active"); b.textContent=`${ev.name} · ${ev.multiplier}× offerings`; }
+function eventBannerCalm(){ const b=$("#eventBanner"); b.classList.remove("active"); b.style.cursor="pointer"; b.title="tap to time-travel"; b.textContent="⟲ "+((ERAS[activeEra]&&ERAS[activeEra].label)||"The Keep")+" · tap to time-travel"; }
+const TIERCOLOR={Observer:"#8e8e99",Follower:"#9bc6d9",Disciple:"#76f7b4",Harbinger:"#f6a53a",Prophet:"#ff7a18",Doorborn:"#ff5e6c",Ascended:"#b06bff","The Marked":"#ff2a3c"};
+function renderLeaderboard(list){ const el=$("#leaderboard"); el.innerHTML="";
+  for(const r of list){ const me=r.id===`u:${SID}`; const d=document.createElement("div"); d.className="lrow"+(me?" you":"")+(r.sim?" sim":"");
+    d.innerHTML=`<div class="pos">${r.position}</div><div class="lname"><strong>${me?"you":r.name}</strong><div class="sub"><span style="color:${TIERCOLOR[r.rank]||'#8e8e99'}">${r.rank}</span>${r.sim?'<span class="seedtag">seed</span>':''}</div></div><div class="lscore">${fmt(r.score)}</div>`;
+    el.appendChild(d); } }
+function whisper(actor,text){ const el=document.createElement("div"); el.className="whisper"; el.innerHTML=`<strong>${actor}</strong> ${text}<time>${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</time>`; $("#whispers").prepend(el); while($("#whispers").children.length>18) $("#whispers").lastElementChild.remove(); }
+
+/* ---------- SSE ---------- */
+function openStream(){ const es=new EventSource("/api/stream");
+  es.onopen=()=> $("#connState").textContent="live"; es.onerror=()=> $("#connState").textContent="reconnecting…";
+  es.addEventListener("snapshot",e=>{ const d=JSON.parse(e.data); setDevoured(d.devoured); renderLeaderboard(d.leaderboard); applyWorld(d.world); });
+  es.addEventListener("tick",e=> setDevoured(JSON.parse(e.data).devoured));
+  es.addEventListener("leaderboard",e=> renderLeaderboard(JSON.parse(e.data)));
+  es.addEventListener("whisper",e=>{ const d=JSON.parse(e.data); whisper(d.actor,d.text); });
+  es.addEventListener("global",e=>{
+    const d=JSON.parse(e.data);
+    triggerCurtainTransition(d.event.anim||"", d.event.accent);
+    eventBannerActive(d.event);
+    $("#gtext").textContent=d.event.name; $("#gflash").classList.add("show"); shake=16; glow=1.4; setTimeout(()=>$("#gflash").classList.remove("show"),1900);
+  });
+  es.addEventListener("global-end",()=> {
+    triggerCurtainTransition("", "#f6a53a");
+    eventBannerCalm();
+  });
+  es.addEventListener("collectable",e=>{ const d=JSON.parse(e.data); if(d.player!==me?.name) whisper("The Door",`${d.player} found a ${d.collectable.rarity} ${d.collectable.name}.`); });
+}
+
+/* ---------- feeding ---------- */
+let feeding=false;
+async function feed(){
+  // asleep: clicks only stir crude sleep-talk + snores; no feeding until tokens go in
+  if(phase==="sleeping"||phase==="goingToSleep"){ sleepTalk(); return; }
+  if(phase==="wakingUp") return;
+  // predict the wall: no free feeds left AND can't afford a paid one → lights out
+  if(me && me.freeFeeds<=0 && me.balance<(cfg.feedCost||10)){ goToSleep(); return; }
+  thump(1+comboLocal/8); burst(W/2,H*.54,accent,30); glow=Math.min(1.6,glow+.28); shake=Math.min(18,shake+7); mouthOpen=Math.min(1,mouthOpen+0.9); blink=0.35; faceReactTimer=0.65;
+  if(Math.random()<0.22) speak();
+  if(feeding) return; feeding=true;
+  let txSig = null;
+  if (me && me.connected && me.walletPubkey && me.freeFeeds <= 0) {
+    try {
+      const mintAddr = await getMintAddr();
+      const tx = await buildBurnTx(mintAddr, me.walletPubkey, cfg.feedCost, 6);
+      const signed = await window.solana.signTransaction(tx);
+      const conn = await getSolConn();
+      txSig = await conn.sendRawTransaction(signed.serialize(), { skipPreflight: false });
+      await conn.confirmTransaction(txSig, "confirmed");
+    } catch (e) {
+      feeding = false;
+      toast("Burn Failed", e.message || "Phantom rejected or network error.");
+      return;
+    }
+  }
+  const out=await api("/api/feed",{ sessionId:SID, nonce:crypto.randomUUID(), txSig }); feeding=false;
+  if(out.error==="wall"){ goToSleep(); return; }
+  if(out.error){ whisper("Threshold", out.message||"…"); return; }
+  if(out.duplicate) return;
+  applySession(out.session); comboLocal=out.session.combo; setDevoured(out.devoured);
+  if(out.rankedUp) toast("Ascension","You are now "+out.rankedUp+".");
+  if(out.personal){ if(out.personal.kind==="golden") accent="#ffe28a"; toast(out.personal.title,out.personal.text); }
+  if(out.collectable){ localInventory.push(out.collectable); renderInventory(); toast(out.collectable.rarity.toUpperCase()+" DROP",out.collectable.name+" — "+out.collectable.desc+" Trade it from the loot bag."); }
+}
+$("#feed").onclick=feed; $("#shell").onclick=feed;
+window.addEventListener("keydown",e=>{ if(e.code==="Space"&&!$("#tutorial").classList.contains("show")){ e.preventDefault(); feed(); } });
+$("#connect").onclick = async () => {
+  if (me && me.connected) return;
+  const phantom = window.solana;
+  if (!phantom || !phantom.isPhantom) {
+    toast("Phantom Required", "Install Phantom wallet at phantom.app, then try again.");
+    return;
+  }
+  try {
+    const resp = await phantom.connect();
+    walletPubkey = resp.publicKey.toString();
+    const r = await api("/api/connect", { sessionId: SID, walletPubkey });
+    if (r.session) {
+      applySession(r.session);
+      toast("Wallet Connected", `${walletPubkey.slice(0,6)}…${walletPubkey.slice(-4)} · ${r.session.balance} BTDOOR`);
+      if (phase !== "awake") wakeUp();
+    }
+  } catch (e) {
+    toast("Connection Failed", e.message || "Phantom rejected the connection.");
+  }
+};
+$("#waitBtn").onclick=()=> $("#wall").classList.remove("show");
+$("#acquire").onclick = () => {
+  window.open("https://pump.fun/coin/" + (TOKEN_MINT_ADDR || ""), "_blank");
+  $("#wall").classList.remove("show");
+};
+
+/* ---------- burn explainer ---------- */
+$("#devInfo").onclick=(e)=>{ e.stopPropagation(); $("#devPopover").classList.toggle("show"); };
+document.addEventListener("click",()=> $("#devPopover").classList.remove("show"));
+
+/* ---------- first-visit tutorial (the Door IS the entity; chase-minded but honest) ---------- */
+const TUT=[
+  ["THE DOOR","You thought there was a prize behind here? You absolute clown. The door IS the monster, and it feeds on your pathetic hopes and tokens."],
+  ["HOW TO FEED","Click it or smash spacebar like the little rat you are. You get 5 free feeds because we know your bank account is already crying. Then I flip the switch, kill the lights, and pass out cold until you insert tokens. Poke me while I'm sleeping and you'll just get an earful of my dreams."],
+  ["THE ODDS","Let's be real: your clicks are garbage and you're going to lose. You're just chasing a 1% RNG dopamine hit because you have nothing else going on. Pure degenerate brain rot."],
+  ["THE BOARD","Every click bumps your rank. You get to flex on the other losers wasting their lives here. Enjoy your fake internet status before it resets."],
+  ["THE BURN","Tokens go in, and they literally burn. Gone. Forever. Just like your ex. This isn't an investment, it's a financial dumpster fire and you brought the matches."],
+  ["GLOBAL EVENTS","Randomly, this idiot door loses its mind. Everything flashes, multipliers go crazy. Don't blink, or you'll miss the only exciting thing happening to you today."],
+  ["START","Stop reading this garbage and click the damn door. Use your free ones before we revoke them just to spite you."],
+];
+let tutIdx=0;
+function renderTut(){ const [ti,b]=TUT[tutIdx]; $("#tutTitle").textContent=ti; $("#tutBody").textContent=b;
+  $("#tutDots").innerHTML=TUT.map((_,i)=>`<i class="${i===tutIdx?'on':''}"></i>`).join(""); $("#tutNext").textContent=tutIdx===TUT.length-1?"Begin":"Next"; }
+function openTut(){ tutIdx=0; renderTut(); $("#tutorial").classList.add("show"); }
+function closeTut(){ $("#tutorial").classList.remove("show"); try{ localStorage.setItem("door-tutorial-v2","1"); }catch(_){} }
+$("#tutNext").onclick=()=>{ if(tutIdx<TUT.length-1){ tutIdx++; renderTut(); } else closeTut(); };
+$("#tutSkip").onclick=closeTut; $("#help").onclick=openTut;
+
+boot();
+let seen=false; try{ seen=!!localStorage.getItem("door-tutorial-v2"); }catch(_){}
+if(!seen) openTut();
+</script>
+</body>
+</html>
