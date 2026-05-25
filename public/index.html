@@ -606,31 +606,16 @@ function getProcessedFace(era, frameIdx) {
   const [tr, tg, tb, ta] = FACE_TINTS[era] || [120, 90, 50, 0.18];
 
   for (let i = 0; i < d.length; i += 4) {
-    const r = d[i], g = d[i+1], b = d[i+2];
-
-    /* ---- luminance + saturation aware background removal ---- */
-    const lum  = r * 0.299 + g * 0.587 + b * 0.114;
-    const maxC = Math.max(r, g, b);
-    const sat  = maxC < 8 ? 0 : (maxC - Math.min(r, g, b)) / maxC;
-
-    if (lum > 232 && sat < 0.10) {
-      d[i+3] = 0;   // clear white / near-grey → fully transparent
-      continue;
-    }
-    if (lum > 178 && sat < 0.26) {
-      // soft transition: bright + desaturated pixels fade out gently
-      const brightT  = (lum  - 178) / 54;           // 0..1 across 178→232
-      const desatT   = Math.max(0, 1 - sat / 0.26); // 1=grey, 0=colourful
-      const fade     = Math.min(1, brightT * desatT);
-      d[i+3] = Math.max(0, Math.round((1 - fade) * d[i+3]));
-    }
+    // Images already have proper PNG transparency — skip brightness-based removal
+    // which was destroying bright eye glow and lip highlights.
+    // Only skip fully transparent pixels; apply era tint to everything else.
+    if (d[i+3] === 0) continue;
 
     /* ---- era tint: visible pixels get a colour cast to match background ---- */
-    if (d[i+3] > 0) {
-      d[i]   = Math.round(r * (1 - ta) + tr * ta);
-      d[i+1] = Math.round(g * (1 - ta) + tg * ta);
-      d[i+2] = Math.round(b * (1 - ta) + tb * ta);
-    }
+    const r = d[i], g = d[i+1], b = d[i+2];
+    d[i]   = Math.round(r * (1 - ta) + tr * ta);
+    d[i+1] = Math.round(g * (1 - ta) + tg * ta);
+    d[i+2] = Math.round(b * (1 - ta) + tb * ta);
   }
   ox.putImageData(id, 0, 0);
   faceCanvasCache[era][frameIdx] = oc;
@@ -813,8 +798,8 @@ function draw(ts){
   if (phase === "awake" && (doorSpeaking || faceReactTimer > 0)) {
     blinkPhase = 0; // eyes must stay open while speaking: kill any in-progress blink
   } else {
-    blinkTimer-=dt; if(blinkTimer<=0){ blink=1; blinkTimer=2.5+Math.random()*4; blinkPhase=1; blinkPhaseTimer=0.10; }
-    if(blinkPhase>0){ blinkPhaseTimer-=dt; if(blinkPhaseTimer<=0){ blinkPhase++; if(blinkPhase===2) blinkPhaseTimer=0.14; else if(blinkPhase===3) blinkPhaseTimer=0.10; else blinkPhase=0; } }
+    blinkTimer-=dt; if(blinkTimer<=0){ blink=1; blinkTimer=2.5+Math.random()*4; blinkPhase=1; blinkPhaseTimer=0.05; }
+    if(blinkPhase>0){ blinkPhaseTimer-=dt; if(blinkPhaseTimer<=0){ blinkPhase++; if(blinkPhase===2) blinkPhaseTimer=1.0; else if(blinkPhase===3) blinkPhaseTimer=0.05; else blinkPhase=0; } }
   }
   // mood cycling (overridden by events)
   moodTimer-=dt; if(moodTimer<=0){ const names=Object.keys(MOODS); moodName=names[Math.floor(Math.random()*names.length)]; moodTimer=4+Math.random()*6; }
