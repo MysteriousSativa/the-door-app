@@ -500,52 +500,52 @@ async function loadBackgroundImages() {
 function loadFaceAndDoorImages() {
   const FACE_SRC = {
     keep: [
-      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (1).png',
-      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (2).png',
-      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (3).png',
-      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_34 PM (4).png',
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (1).png', // 0: idle
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (2).png', // 1: half-blink (use closed)
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (2).png', // 2: fully closed
+      'Medieval stop motion faces/ChatGPT Image May 24, 2026, 04_15_33 PM (3).png', // 3: speaking (eyes open, mouth open)
     ],
     egypt: [
-      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (1).png',
-      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (2).png',
-      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (3).png',
-      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (4).png',
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (1).png', // 0: idle
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (2).png', // 1: half-blink
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (2).png', // 2: fully closed
+      'egypt stop motion faces/ChatGPT Image May 24, 2026, 04_20_58 PM (3).png', // 3: speaking
     ],
     rome: [
-      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (1).png',
-      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (2).png',
-      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (3).png',
-      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (4).png',
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (1).png', // 0: idle
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (2).png', // 1: half-blink
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (2).png', // 2: fully closed
+      'rome stop motion faces/ChatGPT Image May 24, 2026, 04_24_55 PM (3).png', // 3: speaking
     ],
     edo: [
-      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_52 PM (1).png',
-      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (2).png',
-      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (3).png',
-      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (4).png',
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_52 PM (1).png', // 0: idle
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (2).png', // 1: half-blink
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (2).png', // 2: fully closed
+      'edo japan stop motion faces/ChatGPT Image May 24, 2026, 04_46_53 PM (3).png', // 3: speaking
     ],
     seas: [
-      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (1).png',
-      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (2).png',
-      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (3).png',
-      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_25 PM (4).png',
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (1).png', // 0: idle
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (2).png', // 1: half-blink
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (2).png', // 2: fully closed
+      'high seas stop motion faces/ChatGPT Image May 24, 2026, 04_52_24 PM (3).png', // 3: speaking
     ],
     victorian: [
-      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_35 PM (1).png',
-      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_37 PM (2).png',
-      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_38 PM (3).png',
-      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_38 PM (4).png',
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_35 PM (1).png', // 0: idle
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_37 PM (2).png', // 1: half-blink
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_37 PM (2).png', // 2: fully closed
+      'london stop motion faces/ChatGPT Image May 24, 2026, 04_56_38 PM (3).png', // 3: speaking
     ],
     neon: [
-      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (1).png',
-      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (2).png',
-      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (3).png',
-      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_03 PM (4).png',
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (1).png', // 0: idle
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (2).png', // 1: half-blink
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (2).png', // 2: fully closed
+      'Neon Sprawl stop motion faces/ChatGPT Image May 24, 2026, 05_00_02 PM (3).png', // 3: speaking
     ],
     surreal: [
-      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (1).png',
-      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (2).png',
-      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (3).png',
-      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_26 PM (4).png',
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (1).png', // 0: idle
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (2).png', // 1: half-blink
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (2).png', // 2: fully closed
+      'surrealnightmare stop motion faces/ChatGPT Image May 24, 2026, 05_03_25 PM (3).png', // 3: speaking
     ],
   };
   const DOOR_SRC = {
