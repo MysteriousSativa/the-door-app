@@ -615,7 +615,7 @@ function getProcessedFace(era, frameIdx) {
     const lum  = r * 0.299 + g * 0.587 + b * 0.114;
     const maxC = Math.max(r, g, b);
     const sat  = maxC < 8 ? 0 : (maxC - Math.min(r, g, b)) / maxC;
-    if (lum > 230 && sat < 0.06) { d[i+3] = 0; continue; }
+    if (lum > 225 && sat < 0.12) { d[i+3] = 0; continue; }
 
     /* ---- era tint ---- */
     d[i]   = Math.round(r * (1 - ta) + tr * ta);
