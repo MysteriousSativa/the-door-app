@@ -645,22 +645,21 @@ function drawFaceOnDoor(dw, dh, era, frameIdx) {
   if (ar > br) { fw=dw*0.92; fh=fw/ar; fx=dw*0.04; fy=(dh-fh)*0.32; }
   else          { fh=dh*0.88; fw=fh*ar; fx=(dw-fw)/2; fy=dh*0.06; }
 
-  /* Pass 1 — multiply: any residual light fringe multiplies with the door
-     beneath it (white × door colour = door colour), dark lines darken the wood/stone.
-     Net effect: face looks printed/carved onto the door surface.          */
+  /* Pass 1 — multiply at reduced opacity: light texture-carving effect so the
+     face reads as part of the door surface without drowning in it.         */
   cx.save();
   cx.globalCompositeOperation = 'multiply';
+  cx.globalAlpha = 0.55;
   cx.drawImage(img, fx, fy, fw, fh);
   cx.restore();
 
-  /* Pass 2 — source-over at partial opacity: restores enough of the face's
-     natural colour so it reads as a face, not just a dark smear.
-     Shadow gives a slight carved-in / raised depth.                       */
+  /* Pass 2 — source-over at high opacity: face colour is prominent and clear.
+     Shadow gives carved-in depth.                                          */
   cx.save();
-  cx.shadowColor = 'rgba(0,0,0,0.45)';
-  cx.shadowBlur  = 14;
-  cx.shadowOffsetY = 3;
-  cx.globalAlpha = 0.42;
+  cx.shadowColor = 'rgba(0,0,0,0.55)';
+  cx.shadowBlur  = 20;
+  cx.shadowOffsetY = 4;
+  cx.globalAlpha = 0.82;
   cx.drawImage(img, fx, fy, fw, fh);
   cx.restore();
 }
