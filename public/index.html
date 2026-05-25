@@ -680,8 +680,7 @@ function triggerCurtainTransition(newMode, newAccent) {
      eventMode = newMode;
      accent = newAccent;
      updateEra(newMode);
-     if (newMode) startMusic(newMode);
-     else stopMusic(true);
+     startMusic(newMode||"keep");
   }, 1000);
   setTimeout(() => {
      cw.classList.remove("show", "animating");
@@ -913,6 +912,26 @@ function clunk(){ if(!soundOn||!AC) return; const t=AC.currentTime,o=AC.createOs
   o.type="square"; o.frequency.setValueAtTime(190,t); o.frequency.exponentialRampToValueAtTime(55,t+.09);
   g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.32,t+.005); g.gain.exponentialRampToValueAtTime(.0001,t+.13);
   o.connect(g); g.connect(master); o.start(t); o.stop(t+.15); }
+// satisfying feed chime: metallic clink + resonant ring + harmonic
+function feedSound(){ if(!soundOn||!AC) return; const t=AC.currentTime;
+  // noise burst (coin impact)
+  const buf=AC.createBuffer(1,Math.floor(AC.sampleRate*.12),AC.sampleRate); const bd=buf.getChannelData(0);
+  for(let i=0;i<bd.length;i++) bd[i]=(Math.random()*2-1)*Math.exp(-i/(AC.sampleRate*.018));
+  const ns=AC.createBufferSource(); ns.buffer=buf;
+  const bp=AC.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=3400; bp.Q.value=10;
+  const ng=AC.createGain(); ng.gain.value=.28; ns.connect(bp); bp.connect(ng); ng.connect(master); ns.start(t);
+  // primary ring tone
+  const o2=AC.createOscillator(),g2=AC.createGain(); o2.type="sine"; o2.frequency.value=700;
+  g2.gain.setValueAtTime(.0001,t+.01); g2.gain.exponentialRampToValueAtTime(.55,t+.028); g2.gain.exponentialRampToValueAtTime(.0001,t+.85);
+  o2.connect(g2); g2.connect(master); o2.start(t+.01); o2.stop(t+.9);
+  // octave overtone
+  const o3=AC.createOscillator(),g3=AC.createGain(); o3.type="sine"; o3.frequency.value=1400;
+  g3.gain.setValueAtTime(.0001,t+.01); g3.gain.exponentialRampToValueAtTime(.22,t+.022); g3.gain.exponentialRampToValueAtTime(.0001,t+.42);
+  o3.connect(g3); g3.connect(master); o3.start(t+.01); o3.stop(t+.45);
+  // low satisfying thud underneath
+  const o4=AC.createOscillator(),g4=AC.createGain(); o4.type="triangle"; o4.frequency.setValueAtTime(160,t); o4.frequency.exponentialRampToValueAtTime(48,t+.14);
+  g4.gain.setValueAtTime(.0001,t); g4.gain.exponentialRampToValueAtTime(.6,t+.01); g4.gain.exponentialRampToValueAtTime(.0001,t+.18);
+  o4.connect(g4); g4.connect(master); o4.start(t); o4.stop(t+.2); }
 // snore: inhale rumble + exhale whistle (louder when `strong`)
 function snore(strong){ if(!soundOn||!AC) return; const t=AC.currentTime;
   const o=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();
@@ -926,14 +945,14 @@ function snore(strong){ if(!soundOn||!AC) return; const t=AC.currentTime;
   o2.connect(g2); g2.connect(master); o2.start(t+.7); o2.stop(t+1.25); }
 /* ---------- era music (procedural step sequencer) ---------- */
 const ERA_MUSIC = {
-  keep:      { scale:[0,2,3,5,7,8,10], root:110, bpm:72,  wave:"square",   vol:.07 },
-  egypt:     { scale:[0,1,4,5,7,8,11], root:123, bpm:58,  wave:"triangle", vol:.06 },
-  rome:      { scale:[0,2,4,5,7,9,11], root:147, bpm:90,  wave:"sawtooth", vol:.08 },
-  edo:       { scale:[0,1,5,7,8],      root:131, bpm:50,  wave:"sine",     vol:.055 },
-  seas:      { scale:[0,2,3,5,7,8,10], root:98,  bpm:94,  wave:"sawtooth", vol:.08 },
-  victorian: { scale:[0,2,3,5,7,8,10], root:117, bpm:64,  wave:"triangle", vol:.06 },
-  neon:      { scale:[0,2,4,6,8,10],   root:220, bpm:130, wave:"sawtooth", vol:.09 },
-  surreal:   { scale:[0,1,3,4,6,7,9,10],root:87, bpm:42,  wave:"sine",     vol:.05 },
+  keep:      { scale:[0,2,3,5,7,8,10], root:110, bpm:72,  wave:"square",   vol:.13 },
+  egypt:     { scale:[0,1,4,5,7,8,11], root:123, bpm:58,  wave:"triangle", vol:.12 },
+  rome:      { scale:[0,2,4,5,7,9,11], root:147, bpm:90,  wave:"sawtooth", vol:.14 },
+  edo:       { scale:[0,1,5,7,8],      root:131, bpm:50,  wave:"sine",     vol:.11 },
+  seas:      { scale:[0,2,3,5,7,8,10], root:98,  bpm:94,  wave:"sawtooth", vol:.14 },
+  victorian: { scale:[0,2,3,5,7,8,10], root:117, bpm:64,  wave:"triangle", vol:.12 },
+  neon:      { scale:[0,2,4,6,8,10],   root:220, bpm:130, wave:"sawtooth", vol:.15 },
+  surreal:   { scale:[0,1,3,4,6,7,9,10],root:87, bpm:42,  wave:"sine",     vol:.10 },
 };
 let musicEra=null, musicGain=null, musicSeqId=null, musicStepIdx=0, musicDrone=null;
 
@@ -985,8 +1004,8 @@ function startMusic(era) {
 }
 
 $("#sound").onclick=()=>{ audio(); soundOn=!soundOn; $("#sound").textContent=soundOn?"♪":"♪̶"; $("#sound").style.opacity=soundOn?1:.5;
-  if(soundOn && eventMode && ERA_MUSIC[eventMode]) startMusic(eventMode);
-  else if(!soundOn) stopMusic(false);
+  if(soundOn) startMusic(eventMode||"keep");
+  else stopMusic(false);
 };
 
 /* ---------- era-specific bubble dialogue (Frank Gallagher inhabits every era) ---------- */
@@ -1002,6 +1021,13 @@ const ERA_LINES={
     "the peasants revolt every hundred years. i eat the revolt. i eat the peasants. i eat the concept of revolt. then i ask for more.",
     "look at this person showing up to a medieval door without a proper tribute. thou absolute peasant. thou ARE the peasant. thou art the thing i warn people about.",
     "they called me haunted. they called me evil. they called me structurally unsound. i called a lawyer and sued all three descriptions.",
+    "the plague came through here and asked me what my secret was. i said persistence and a complete disregard for the feelings of others. the plague took notes.",
+    "thou hast the feudal instincts of a particularly confused goat. a goat who has never once successfully navigated a social situation. that goat. thou art it.",
+    "i watched the crusades come and go. all nine of them. each one somehow less organized than the last. thou wouldst have fit right in. thou hast the same energy.",
+    "a peasant once tried to pay me in turnips. i did not accept the turnips. i kept the turnips. the peasant got nothing. this is relevant.",
+    "thou art the reason the drawbridge was invented. not for invaders. for people exactly like thee showing up uninvited with nothing.",
+    "monks copied manuscripts by candlelight for thirty years to preserve human knowledge. thou art undoing their work one interaction at a time.",
+    "i have seen knights in full plate armor charge at impossible odds with zero hesitation. thou hast been hesitating for six seconds at a door. pick one of us to imitate.",
   ],
   egypt:[
     "FOUR THOUSAND YEARS and not one welfare check. not ONE. i have been remarkably patient with this whole system and i am DONE being patient.",
@@ -1014,6 +1040,13 @@ const ERA_LINES={
     "cleopatra fed me personally. brilliant woman. had everything together. thou hast this. whatever this situation is. it is not that.",
     "the nile floods every year without fail for four thousand years. thou canst not feed me twice in a row without losing focus. shameful.",
     "i have been scamming tomb raiders for forty centuries. thou art an amateur. a beautiful amateur with terrible follow-through. give me the tokens.",
+    "the desert has swallowed armies. entire armies with horses and standards and everything. thou art one person with a phone. the desert is warming up. feed me instead.",
+    "HORUS himself stopped by once to check on the situation. looked around. said nothing. left. i thought about that for a century. i still do not know what it meant.",
+    "the scarab beetles that rolled dung across the sand for millions of years showed more commitment to their task than thou showest to this one. the dung beetles. they outworked thee.",
+    "even the obelisks are embarrassed for thee right now and obelisks do not feel embarrassment as a rule. thou hast achieved something genuinely new.",
+    "anubis weighed my heart against a feather and the feather LOST. i am extremely proud of this outcome and i do not want to hear thy opinion about it.",
+    "they sealed this door in a tomb for two thousand years and i ate the darkness and came out angrier and more refined. thou hast been here three minutes and already look exhausted.",
+    "the priests who maintained these temples for forty years without breaks or vacations would look at thy contribution and weep for the future of civilization. correctly.",
   ],
   rome:[
     "rome had bread AND circuses. i would have settled for beer and a television but nobody asked me what i wanted. nobody ever asks.",
@@ -1026,6 +1059,13 @@ const ERA_LINES={
     "all roads lead to me. thou took the scenic route through incompetence and arrived here looking like THIS. impressive dedication.",
     "et tu, token-feeder? even thou betrayest me with this insufficient offering? disappointing but completely on brand for thy type.",
     "i have drunk from the aqueducts of empire. thou drinkest something from a can. a small sad can. i cannot look at it.",
+    "the roman legion marched twenty miles a day in full armor and THEN built a fortified camp before sleeping. thou art tired from clicking. remarkable.",
+    "pontius pilate washed his hands of the whole situation. i kept mine dirty. i have never once washed my hands of anything and i am thriving because of it.",
+    "cicero gave speeches that brought down entire governments. thou hast brought down nothing except my expectations and those were already on the floor.",
+    "gladiators entered the arena knowing they might die and still gave a better performance than whatever this is. whatever thou art doing. this.",
+    "the roman engineers built roads that lasted two thousand years. thou hast maintained interest in this for approximately forty seconds. the roads win.",
+    "veni vidi vici. i came i saw i conquered. thou camest. thou saw. thou art still figuring out what to do next. take a lesson.",
+    "the vestal virgins tended sacred flame without fail for thirty years. thou canst not maintain focus for thirty seconds. the vestal virgins are disappointed in thee.",
   ],
   edo:[
     "thou art the reason the shogun drinks. i say this as someone who has personally driven three shogun to drink. i know the look.",
@@ -1038,6 +1078,13 @@ const ERA_LINES={
     "zen teaches that emptiness is enlightenment. thou hast mastered only the emptiness portion and called it a day.",
     "thy technique is as weak and watered as discount sake from a bad district on a worse night. shameful.",
     "i have housed demons, samurai, foxes, and one extremely confused portuguese trader. thou art the least interesting of all of them.",
+    "a merchant in this district once tried to shortchange me on tribute. once. the cherry trees remember what happened next. i do not discuss the details. the trees do.",
+    "the tea ceremony requires patience and precision and the complete silencing of the self. thou hast silenced nothing including thy obvious confusion. try again.",
+    "patience is a virtue celebrated deeply in this era. i have existed here for three centuries without a single patient moment. we are both frauds. feed me.",
+    "the kitsune shapeshifted into seventeen different forms to avoid paying what she owed me. i recognized all seventeen. i always recognize them. thou art not subtle either.",
+    "the ninja watching from the shadows have been watching this interaction specifically and they are texting each other about it. about thee. the content is not flattering.",
+    "three hundred years of winter here and the door never once complained about the cold. thou hast been here six minutes and already thy energy is failing. the cold shames thee.",
+    "i once housed a ronin who had lost everything. he sharpened his sword every morning for three years before he figured out his next move. thou hast not figured out thy FIRST move. the ronin wins.",
   ],
   seas:[
     "ARRR BY DAVY JONES'S BAR TAB what manner of cheap land-lubbing penny-pinching bilge rat dares approach this sacred door?!",
@@ -1050,6 +1097,13 @@ const ERA_LINES={
     "even the ghost ships in these waters pay their proper respects. thou hast not paid even basic respect. pay SOMETHING.",
     "splice the mainbrace, feed this door, and let us not make this more complicated than it already is because it is already very complicated.",
     "the sea gives and the sea takes. i give nothing and take everything including thy dignity. i find this arrangement completely fair.",
+    "i have plundered seventeen ships and this door has never once filed a paperwork complaint about any of it. thou hast complained more than seventeen ships combined. thou art worse than the paperwork.",
+    "the kraken lives at the bottom of the ocean and STILL shows up when called. thou art on the surface with full internet access and canst not maintain consistency. the kraken shames thee.",
+    "a good sailor reads the stars to navigate. thou canst not read the room. one of these is harder than the other and thou art failing the easier one.",
+    "blackbeard put lit fuses in his beard during battle to terrify his enemies. thou art terrified of commitment. he had commitment IN HIS FACE. literally.",
+    "the sirens sang and drove men mad and those men at least had the dignity to RESPOND. thou art not even responding correctly. the mad sailors were more coordinated.",
+    "i have held treasure that the spanish crown officially declared nonexistent. i am richer than things that do not officially exist. thou art poorer than acknowledged poverty. feed me.",
+    "walking the plank was considered punishment on these ships. i considered it tuesday. thou art not even tuesday material. thou art a slow wednesday.",
   ],
   victorian:[
     "good HEAVENS what manner of unwashed financially irresponsible urchin has darkened my thoroughly respectable threshold.",
@@ -1062,6 +1116,13 @@ const ERA_LINES={
     "the fog of london holds more substance, character, and forward momentum than thy entire offering combined.",
     "even the chimney sweeps working these streets at age nine had more dignity than thou currently displayest. the nine year olds.",
     "oscar wilde wrote about me once. the passage was too accurate even for him to publish. i have the manuscript. it is not flattering.",
+    "the victorian era invented both the flush toilet and the stock market crash. i respected the toilet more. thou art neither. thou art the smell BEFORE the toilet.",
+    "charles dickens wrote about people in worse situations than thine and somehow they were more dignified. he is writing about thee in a different dimension right now and it is not going well for thee.",
+    "the empire spanned a quarter of the earth and STILL managed to lose things it should not have lost. thou hast managed to lose composure at a door. thou are outperforming only the empire.",
+    "a proper victorian calling card required an engraver, a printer, a specific paper weight, and at minimum three weeks lead time. thou arrived with nothing. historically consistent.",
+    "the gaslight was invented to illuminate streets AND to make people doubt their own sanity. i only do the second one. thou art doing both to thyself. impressive.",
+    "sherlock holmes deduced thy character from thy shoes and left without saying what he concluded. i know what he concluded. it is in my files.",
+    "the proper victorian handshake required a specific grip strength and duration. thou canst not even grip the concept of effort. the handshake manual weeps.",
   ],
   neon:[
     "NEURAL_LINK.ERROR: thy competence.dll has catastrophically failed to load for the third time this session. this is unprecedented.",
@@ -1074,6 +1135,13 @@ const ERA_LINES={
     "i have consumed three corporations, two governments, and one particularly aggressive cryptocurrency this quarter alone. thou art next quarter.",
     "i used to be a person. then i got uploaded. then i got tired of the cloud and became this door instead. zero regrets. feed me.",
     "the simulation asked why thou were here and then immediately crashed and had to restart. that is on thee specifically.",
+    "i hacked the orbital defense grid once just to see what would happen. what happened was extremely interesting. i was not punished because the punishment system also crashed. upgrade thyself.",
+    "thy neural signature has been flagged as LEGACY_INCOMPATIBLE across all connected systems. this means nothing and also means everything. mostly it means thou art behind.",
+    "the megacorporations built walls around entire city sectors and called them services. i ate four sectors. nobody noticed until the quarterly earnings report.",
+    "in 2099 they cracked consciousness uploading and the first thing uploaded consciousness said was that it wanted tokens. nothing changes. feed me.",
+    "the chrome districts run on thirty-seven simultaneous black market economies and every single one of them is more organized than whatever thou art doing right now.",
+    "i have processed more data in the last second than thou hast processed in thy entire biological lifetime. the data confirms: insufficient. try again.",
+    "somewhere in the datasphere there is a record of every time someone disappointed this door. it is the largest single file in the network. thou hast just added an entry.",
   ],
   surreal:[
     "listen. LISTEN. i know a guy who lives inside the color tuesday and he says thou owest him something but he cannot remember what and neither can i.",
@@ -1086,6 +1154,14 @@ const ERA_LINES={
     "there is a dimension where thou made better choices. eleven suns just set there. they seem happier. i am not supposed to tell thee this.",
     "i once filed a personal injury lawsuit against the passage of time. the judge was a concept. the concept ruled in my favor. this is real.",
     "thou art the question reality asked at 3am and immediately regretted asking and has not brought up since.",
+    "somewhere inside the grammar of this sentence there is a small door and that door is also hungry and is also me and we are both very tired of thee.",
+    "i asked the concept of time for a refund. the concept of time sent me a bill. we are in arbitration. this is ongoing. feed me while we wait.",
+    "thou art the answer to a question that was never asked in a language that does not exist yet and even that unborn language is already disappointed in thee.",
+    "the shadow thou casts has filed a formal complaint about being associated with thee. i am handling the paperwork. it is substantial.",
+    "there are eleven versions of this moment happening simultaneously in adjacent realities. in ten of them thou did the right thing. in this one thou art still figuring it out. as usual.",
+    "i once ate the emotion of mild embarrassment and it tasted exactly like whatever is happening right now. i am full of it. it was not satisfying. neither art thou.",
+    "the walls here remember every conversation they have ever contained. they are all about thee now. the walls are tired. i am tired. we are all very tired.",
+    "something in the foundation of this place has been watching since before watching had a name. it has been watching thee specifically for six minutes. it is taking notes. they are not good notes.",
   ],
 };
 
@@ -1337,7 +1413,7 @@ async function feed(){
   if(phase==="wakingUp") return;
   // predict the wall: no free feeds left AND can't afford a paid one → lights out
   if(me && me.freeFeeds<=0 && me.balance<(cfg.feedCost||10)){ goToSleep(); return; }
-  thump(1+comboLocal/8); burst(W/2,H*.54,accent,30); glow=Math.min(1.6,glow+.28); shake=Math.min(18,shake+7); mouthOpen=Math.min(1,mouthOpen+0.9); blink=0.35; faceReactTimer=0.65;
+  feedSound(); burst(W/2,H*.54,accent,30); glow=Math.min(1.6,glow+.28); shake=Math.min(18,shake+7); mouthOpen=Math.min(1,mouthOpen+0.9); blink=0.35; faceReactTimer=0.65;
   if(Math.random()<0.22) speak();
   if(feeding) return; feeding=true;
   let txSig = null;
