@@ -810,8 +810,13 @@ function draw(ts){
   leverPos+=(((litTarget<0.5)?1:0)-leverPos)*0.16;
   drowsy+=(drowsyTarget-drowsy)*0.04;
   if(phase==="sleeping"){ snoreLevel=0.5+0.5*Math.sin(t*1.1); } else { snoreLevel*=0.92; }
-  blinkTimer-=dt; if(blinkTimer<=0){ blink=1; blinkTimer=2.5+Math.random()*4; blinkPhase=1; blinkPhaseTimer=0.10; } blink*=.78;
-  if(blinkPhase>0){ blinkPhaseTimer-=dt; if(blinkPhaseTimer<=0){ blinkPhase++; if(blinkPhase===2) blinkPhaseTimer=0.14; else if(blinkPhase===3) blinkPhaseTimer=0.10; else blinkPhase=0; } }
+  blink*=.78;
+  if (phase === "awake" && (doorSpeaking || faceReactTimer > 0)) {
+    blinkPhase = 0; // eyes must stay open while speaking: kill any in-progress blink
+  } else {
+    blinkTimer-=dt; if(blinkTimer<=0){ blink=1; blinkTimer=2.5+Math.random()*4; blinkPhase=1; blinkPhaseTimer=0.10; }
+    if(blinkPhase>0){ blinkPhaseTimer-=dt; if(blinkPhaseTimer<=0){ blinkPhase++; if(blinkPhase===2) blinkPhaseTimer=0.14; else if(blinkPhase===3) blinkPhaseTimer=0.10; else blinkPhase=0; } }
+  }
   // mood cycling (overridden by events)
   moodTimer-=dt; if(moodTimer<=0){ const names=Object.keys(MOODS); moodName=names[Math.floor(Math.random()*names.length)]; moodTimer=4+Math.random()*6; }
   let target=MOODS[ (eventMode && ERAMOOD[eventMode]) ? ERAMOOD[eventMode] : moodName ];
