@@ -170,73 +170,95 @@
      MOBILE  ≤ 768 px
   ============================================================ */
   @media(max-width:768px){
-    html,body{overflow:hidden;}
-    .app{height:100dvh;grid-template-rows:auto 1fr auto;overflow:hidden;}
+    html,body{overflow:hidden;height:100%;}
 
-    /* Compact top bar */
-    .topbar{grid-template-columns:1fr auto;padding:8px 12px;gap:8px;}
-    .brand h1{font-size:1.1rem;letter-spacing:.1em;}
-    .brand span{display:none;}
-    .devoured{display:none;}
-    .wallet{gap:7px;}
-    .balance{font-size:.72rem;padding:6px 10px;}
-    .ghost#connect{font-size:.65rem;padding:0 10px;min-height:34px;}
-    .icon{width:34px;min-height:34px;font-size:.88rem;}
-    .stash{display:none;}
+    /* App occupies the viewport ABOVE the collapsed drawer (46px).
+       Nothing gets hidden behind it. */
+    .app{
+      height:calc(100dvh - 46px);
+      display:flex;flex-direction:column;
+      overflow:hidden;padding:0;
+    }
 
-    /* Stage: only the door, full width */
-    .stage{display:block;padding:8px 10px 0;min-height:0;height:100%;overflow:hidden;}
+    /* ---- topbar: compact 2-col ---- */
+    .topbar{flex:0 0 auto;grid-template-columns:1fr auto;padding:7px 10px;gap:6px;}
+    .brand h1{font-size:1rem;letter-spacing:.08em;}
+    .brand span,.devoured,.stash{display:none;}
+    .wallet{gap:6px;}
+    .balance{font-size:.7rem;padding:5px 9px;}
+    .ghost#connect{font-size:.62rem;padding:0 9px;min-height:32px;}
+    .icon{width:32px;min-height:32px;font-size:.82rem;}
+
+    /* ---- stage: flex 1, fills between topbar and statsbar ---- */
+    .stage{flex:1 1 0;display:block;padding:5px 8px 0;min-height:0;overflow:hidden;}
     .rail{display:none!important;}
-    .door-wrap{display:flex;flex-direction:column;height:100%;gap:8px;}
-    .event-banner{min-height:32px;font-size:.62rem;padding:6px 10px;border-radius:8px;}
-    .canvas-shell{flex:1 1 0;border-radius:12px;min-height:0;}
+
+    /* ---- door-wrap: flex column, fills stage height ---- */
+    .door-wrap{display:flex;flex-direction:column;height:100%;gap:5px;}
+    .event-banner{flex:0 0 auto;min-height:26px;font-size:.56rem;padding:4px 8px;border-radius:7px;}
+    .hp-bar-wrap{flex:0 0 auto;}
+    .hp-bar-fill{height:21px;}
+    .hp-bar-text{padding:0 8px;}
+    .hp-bar-text .hp-name{font-size:.5rem;}
+    .hp-bar-text .hp-num{font-size:.6rem;}
+    .hp-bar-text .hp-round{font-size:.46rem;}
+    /* canvas: eats all remaining space */
+    .canvas-shell{flex:1 1 0;border-radius:10px;min-height:0;}
     #door{width:100%;height:100%;display:block;}
 
-    /* Feed panel — bigger tap targets */
-    .feed-panel{grid-template-columns:1fr 1.4fr 1fr;gap:6px;}
-    .feed-card{padding:8px 6px;border-radius:8px;}
-    .feed-card strong{font-size:1rem;}
-    .feed-card span{font-size:.52rem;}
-    .feed-action .primary{min-height:54px;font-size:.9rem;letter-spacing:.1em;}
+    /* ---- feed panel: compact ---- */
+    .feed-panel{flex:0 0 auto;grid-template-columns:1fr 1.3fr 1fr;gap:4px;}
+    .feed-card{padding:6px 4px;border-radius:7px;}
+    .feed-card strong{font-size:.9rem;}
+    .feed-card span{font-size:.46rem;}
+    .feed-action .primary{min-height:46px;font-size:.82rem;letter-spacing:.08em;}
 
-    /* Stats bar squished */
-    .statsbar{grid-template-columns:repeat(3,1fr);margin:0 10px 0;border-radius:10px;}
-    .stat{padding:8px 6px;}
-    .stat .label{font-size:.5rem;}
-    .stat strong{font-size:.82rem;}
+    /* ---- statsbar: 3-col strip, compact, sits between door and drawer ---- */
+    .statsbar{flex:0 0 auto;grid-template-columns:repeat(3,1fr);margin:3px 8px 0;border-radius:8px;}
+    .stat{padding:5px 4px;}
+    .stat .label{font-size:.45rem;}
+    .stat strong{font-size:.72rem;margin-top:1px;}
 
-    /* Inventory bar — hidden on mobile (goes in Loot tab) */
+    /* inventory bar hidden on mobile */
     .inventory-bar{display:none!important;}
 
-    /* Bottom drawer */
-    .m-drawer{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--panel2);border-top:1px solid var(--line2);display:flex;flex-direction:column;max-height:52vh;transition:max-height .28s cubic-bezier(.4,0,.2,1);}
+    /* ---- mobile drawer: fixed 46px strip at the very bottom ---- */
+    .m-drawer{
+      position:fixed;bottom:0;left:0;right:0;z-index:20;
+      background:var(--panel2);border-top:1px solid var(--line2);
+      display:flex;flex-direction:column;
+      max-height:52vh;
+      transition:max-height .28s cubic-bezier(.4,0,.2,1);
+    }
     .m-drawer.collapsed{max-height:46px;}
-    .m-tabs{display:flex;border-bottom:1px solid var(--line);}
-    .m-tab{flex:1;padding:10px 0 8px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;background:transparent;border:none;color:var(--muted);cursor:pointer;position:relative;transition:color .2s;}
+    .m-tabs{display:flex;border-bottom:1px solid var(--line);flex-shrink:0;}
+    .m-tab{flex:1;padding:9px 0 7px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;background:transparent;border:none;color:var(--muted);cursor:pointer;position:relative;transition:color .2s;}
     .m-tab.active{color:var(--glow);}
     .m-tab.active::after{content:"";position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--glow);border-radius:2px;}
-    .m-panel{display:none;flex:1;overflow-y:auto;padding:6px 8px 60px;scrollbar-width:thin;}
+    .m-panel{display:none;flex:1;overflow-y:auto;padding:6px 8px 10px;scrollbar-width:thin;}
     .m-panel.show{display:block;}
-    .m-loot-empty{color:var(--dim);font-size:.75rem;text-align:center;padding:20px 0;}
-    .m-inv-chip{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:6px;border:1px solid;font-size:.8rem;font-weight:700;cursor:pointer;transition:transform .1s,opacity .1s;active:scale(.97);}
+    .m-loot-empty{color:var(--dim);font-size:.75rem;text-align:center;padding:16px 0;}
+    .m-inv-chip{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;margin-bottom:5px;border:1px solid;font-size:.78rem;font-weight:700;cursor:pointer;}
     .m-inv-chip.common{background:rgba(142,142,153,.15);border-color:rgba(142,142,153,.4);color:#9e9eab;}
     .m-inv-chip.uncommon{background:rgba(118,247,180,.10);border-color:rgba(118,247,180,.4);color:#76f7b4;}
     .m-inv-chip.rare{background:rgba(100,160,255,.12);border-color:rgba(100,160,255,.42);color:#7aabff;}
     .m-inv-chip.legendary{background:rgba(255,215,80,.12);border-color:rgba(255,215,80,.5);color:#ffd750;}
-    .m-inv-chip .trade-btn{font-size:.65rem;padding:4px 10px;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
-    .m-whisper{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.05);line-height:1.4;font-size:.8rem;color:#ddd5c6;}
-    .m-whisper strong{color:var(--glow);font-family:var(--ritual);font-size:.74rem;}
-    .m-whisper time{display:block;color:var(--dim);font-size:.6rem;margin-top:2px;}
-    .m-lrow{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;padding:8px 6px;border-radius:8px;font-size:.8rem;font-variant-numeric:tabular-nums;}
+    .m-inv-chip .trade-btn{font-size:.62rem;padding:4px 9px;border:1px solid currentColor;border-radius:6px;background:transparent;color:inherit;cursor:pointer;font-weight:800;text-transform:uppercase;}
+    .m-whisper{padding:7px 6px;border-bottom:1px solid rgba(255,255,255,.05);line-height:1.38;font-size:.78rem;color:#ddd5c6;}
+    .m-whisper strong{color:var(--glow);font-family:var(--ritual);font-size:.72rem;}
+    .m-whisper time{display:block;color:var(--dim);font-size:.58rem;margin-top:2px;}
+    .m-lrow{display:grid;grid-template-columns:18px 1fr auto;gap:7px;align-items:center;padding:7px 5px;border-radius:7px;font-size:.78rem;font-variant-numeric:tabular-nums;}
     .m-lrow+.m-lrow{margin-top:2px;}
     .m-lrow.you{background:linear-gradient(90deg,rgba(246,165,58,.18),rgba(246,165,58,.04));box-shadow:inset 0 0 0 1px rgba(246,165,58,.32);}
-    .m-lrow .pos{color:var(--dim);font-size:.72rem;text-align:right;}
-    .m-lrow strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem;font-weight:600;}
-    .m-lrow .sub{color:var(--muted);font-size:.6rem;text-transform:uppercase;}
-    .m-lrow .lscore{color:var(--glow);font-weight:800;font-size:.78rem;}
-    .toast-wrap{right:10px;bottom:56px;}
-    .toast{max-width:calc(100vw - 20px);}
-    .conn{bottom:50px;font-size:.55rem;}
+    .m-lrow .pos{color:var(--dim);font-size:.68rem;}
+    .m-lrow strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.76rem;font-weight:600;}
+    .m-lrow .sub{color:var(--muted);font-size:.57rem;text-transform:uppercase;}
+    .m-lrow .lscore{color:var(--glow);font-weight:800;font-size:.74rem;}
+
+    /* toasts above drawer */
+    .toast-wrap{right:8px;bottom:52px;}
+    .toast{max-width:calc(100vw - 16px);}
+    .conn{bottom:52px;font-size:.52rem;}
     .footer-note{display:none;}
   }
 </style>
@@ -367,7 +389,7 @@ function triggerHitFlash(){
   setTimeout(()=>f.classList.remove("bang"),340);
 }
 
-function triggerDoorDeath(slayers, newRound){
+function triggerDoorDeath(slayers, newRound, newHP, killSec){
   /* red death screen flash */
   const df=$("#deathFlash");
   df.classList.add("show");
@@ -385,14 +407,18 @@ function triggerDoorDeath(slayers, newRound){
   setTimeout(()=>$("#gflash").classList.remove("show"),2500);
 
   /* slayer prize toast */
+  const ks=killSec?` Killed in ${killSec}s.`:"";
   if(slayers&&slayers.includes(me?.name)){
-    setTimeout(()=>toast("SLAYER'S MARK","You dealt killing blows this round. A Slayer's Mark is in your loot bag."),1500);
+    setTimeout(()=>toast("SLAYER'S MARK","You dealt killing blows this round. Slayer's Mark is in your loot bag."+ks),1500);
   } else if(slayers&&slayers.length){
-    setTimeout(()=>toast("DOOR SLAIN",`Round ${doorRound} ended. Slayers: ${slayers.join(", ")}`),1500);
+    setTimeout(()=>toast("DOOR SLAIN",`Round ${doorRound} ended.${ks} Slayers: ${slayers.join(", ")}`),1500);
+  } else {
+    setTimeout(()=>toast("NEW DOOR",`Round ${newRound||doorRound+1} begins.${newHP&&newHP!==doorMaxHP?(newHP>doorMaxHP?" Stronger.":"Weaker."):""}${ks}`),1500);
   }
 
-  /* restore HP bar to full for new round */
-  setTimeout(()=>updateHPBar(doorMaxHP,doorMaxHP,newRound||doorRound+1),1000);
+  /* restore HP bar to full for new round — use server's new max */
+  const nextMax=newHP||doorMaxHP;
+  setTimeout(()=>updateHPBar(nextMax,nextMax,newRound||doorRound+1),1000);
 }
 /* ============================================ */
 
@@ -536,9 +562,18 @@ function loadFaceAndDoorImages() {
 }
 
 function getCurrentFaceFrame() {
+  // sleeping: eyes always locked shut — nothing overrides this
+  if (phase === "sleeping") return 2;
+  // going to sleep: eyes default to closed, blink transitions allowed, mouth never opens
+  if (phase === "goingToSleep") {
+    if (blinkPhase === 1 || blinkPhase === 3) return 1;
+    return 2;
+  }
+  // blinking while awake/waking: suppress mouth-open during the blink sequence
   if (blinkPhase === 2) return 2;                     // fully closed
   if (blinkPhase === 1 || blinkPhase === 3) return 1; // half-close / half-open
-  if (faceReactTimer > 0 || doorSpeaking) return 3;  // mouth open only on click/speech
+  // awake: mouth reacts to clicks and speech
+  if (faceReactTimer > 0 || doorSpeaking) return 3;
   return 0;                                            // idle: eyes open, mouth closed
 }
 
@@ -1233,7 +1268,7 @@ function openStream(){ const es=new EventSource("/api/stream");
   es.addEventListener("leaderboard",e=> renderLeaderboard(JSON.parse(e.data)));
   es.addEventListener("whisper",e=>{ const d=JSON.parse(e.data); whisper(d.actor,d.text); });
   es.addEventListener("door-hit",e=>{ const d=JSON.parse(e.data); updateHPBar(d.hp,d.maxHp,d.round); });
-  es.addEventListener("door-slain",e=>{ const d=JSON.parse(e.data); triggerDoorDeath(d.slayers,d.newRound); });
+  es.addEventListener("door-slain",e=>{ const d=JSON.parse(e.data); triggerDoorDeath(d.slayers,d.newRound,d.newHP,d.killSec); });
   es.addEventListener("global",e=>{
     const d=JSON.parse(e.data);
     triggerCurtainTransition(d.event.anim||"", d.event.accent);

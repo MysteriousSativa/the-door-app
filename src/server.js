@@ -44,9 +44,12 @@ const PUBLIC_DIR = path.join(__dirname, "..", "public");
 const MAX_SSE = Number(process.env.MAX_SSE || 2000); // hard cap on concurrent streams
 
 /* ---------------- world state (authoritative, shared) ---------------- */
+const DOOR_TARGET_MS = 240_000; // 4-minute target kill time for adaptive scaling
+
 const world = {
   activeEvent: null, eventEndsAt: 0, cycle: 1,
   doorHP: engine.DOOR_MAX_HP, doorMaxHP: engine.DOOR_MAX_HP, doorRound: 1,
+  doorRoundStartAt: Date.now(),
 };
 // Per-round damage tracking: sessionId -> hits dealt this round
 const roundDamage = new Map();
@@ -99,22 +102,36 @@ async function handleDoorDeath() {
     slayerNames.push(sess.name);
   }
 
+  // --- adaptive HP: scale next round based on how fast this one was killed ---
+  const killMs = Date.now() - world.doorRoundStartAt;
+  const ratio  = killMs / DOOR_TARGET_MS;           // <1 = killed fast, >1 = killed slow
+  const rawNext = Math.round(world.doorMaxHP / ratio);
+  // cap change to 1.5x per round in either direction; hard floor 300, ceiling 5000
+  const nextMaxHP = Math.max(300, Math.min(5000,
+    Math.min(world.doorMaxHP * 1.5, Math.max(world.doorMaxHP / 1.5, rawNext))
+  ));
+  const killSec = Math.round(killMs / 1000);
+  const faster  = nextMaxHP > world.doorMaxHP;
+
   broadcast("door-slain", {
     round: world.doorRound,
     slayers: slayerNames,
     newRound: world.doorRound + 1,
-    newHP: engine.DOOR_MAX_HP,
+    newHP: nextMaxHP,
+    killSec,
   });
   broadcast("whisper", {
     actor: "The Door",
     text: slayerNames.length
-      ? `IT IS DEAD. Round ${world.doorRound} — Slayers: ${slayerNames.join(", ")}. A new door takes its place.`
-      : `Round ${world.doorRound} ends. The door resets. It learns nothing.`,
+      ? `IT IS DEAD. Round ${world.doorRound} fell in ${killSec}s. Slayers: ${slayerNames.join(", ")}. The next door ${faster ? "is stronger" : "is weaker"}.`
+      : `Round ${world.doorRound} ends in ${killSec}s. The door resets. It learns nothing.`,
   });
 
   roundDamage.clear();
-  world.doorHP = engine.DOOR_MAX_HP;
+  world.doorMaxHP  = nextMaxHP;
+  world.doorHP     = nextMaxHP;
   world.doorRound += 1;
+  world.doorRoundStartAt = Date.now();
 }
 
 /* ---------------- REST + SSE routing ---------------- */
